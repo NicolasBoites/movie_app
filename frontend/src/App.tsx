@@ -22,7 +22,6 @@ function App() {
             >
               <span>Favorites</span>
             </NavLink>
-            {/* TODO ruta agregar  */}
           </div>
 
           {/* User Avatar + Logout */}
@@ -46,6 +45,7 @@ function App() {
       <div className="px-6 py-12">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/add-movie" element={<HomePage />} />
         </Routes>
       </div>
     </BrowserRouter>
