@@ -11,8 +11,23 @@ export class MovieService {
     @InjectModel(Movie.name) private movieModel: Model<MovieDocument>,
   ) {}
 
-  async findAll(): Promise<Movie[]> {
-    return this.movieModel.find();
+  async findAll(page = 1, limit = 10): Promise<any[]> {
+    const skip = (page - 1) * limit;
+    const docs = await this.movieModel
+      .find()
+      .sort({ _id: 1 })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec();
+
+    //Mapeo `id` en vez de `_id`
+    return docs.map(doc => ({
+      id: doc._id.toString(),
+      title: doc.title,
+      rank: doc.rank,
+      genre: doc.genre,
+    }));
   }
 
   async findOne(id: string): Promise<Movie> {

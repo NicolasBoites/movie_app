@@ -8,6 +8,9 @@ import {
   Put,
   HttpCode,
   HttpStatus,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { MovieService } from '../service/movie.service';
 import { CreateMovieDto } from '../dto/create-movie.dto';
@@ -19,13 +22,17 @@ export class MovieController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll() {
-    const movies = await this.movieService.findAll();
+  async findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const movies = await this.movieService.findAll(page, limit);
     return {
       message: 'Movies found successfully',
       data: movies,
     };
   }
+
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)

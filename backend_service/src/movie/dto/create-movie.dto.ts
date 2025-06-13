@@ -9,6 +9,7 @@ export class CreateMovieDto {
   title: string;
 
   @IsNumber()
+  @IsNotEmpty({ message: 'Rank must not be empty' })
   rank: number;
 
   @IsString()
