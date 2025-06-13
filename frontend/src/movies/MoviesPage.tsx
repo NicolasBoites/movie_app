@@ -8,6 +8,7 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MovieList from "./MovieList";
 
 function MoviesPage() {
@@ -37,6 +38,12 @@ function MoviesPage() {
   const isPending = null;
   const isError = null;
   const error = { message: null };
+
+  const navigate = useNavigate();
+
+  const handleAddMovieClick = () => {
+    navigate("/home"); // Replace with your route
+  };
 
   let movies = [
     {
@@ -79,10 +86,13 @@ function MoviesPage() {
             Discover and manage films
           </p>
         </div>
-        <Button className="!rounded-none !px-8 !py-5 !bg-slate-900 !font-medium !uppercase">
-          <PlusIcon className="!font-bold " />
+        <button
+          onClick={handleAddMovieClick}
+          className="flex items-center justify-between space-x-1 rounded-none px-6 py-3 bg-slate-900 font-medium uppercase hover:bg-slate-600 cursor-pointer text-slate-50 transition-colors duration-200"
+        >
+          <PlusIcon className="!font-bold !mx-1" />
           Add Movie
-        </Button>
+        </button>
       </div>
 
       {movies ? (
@@ -90,7 +100,7 @@ function MoviesPage() {
           {/* Search bar */}
           <TextField.Root
             placeholder="Search movies by title..."
-            className="!text-xl !text-slate-500 !font-medium !border-0 !border-b !border-slate-300 !ring-0 !outline-0 !h-12 !flex !items-center"
+            className="text-xl !text-slate-500 !font-medium !border-0 !border-b !border-slate-300 !ring-0 !outline-0 !h-12 !flex !items-center"
           >
             <TextField.Slot></TextField.Slot>
             <MagnifyingGlassIcon height="22" width="22" />
