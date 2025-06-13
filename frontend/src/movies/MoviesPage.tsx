@@ -1,5 +1,12 @@
 import { MagnifyingGlassIcon, PlusIcon } from "@radix-ui/react-icons";
-import { Button, TextField } from "@radix-ui/themes";
+import {
+  Button,
+  Container,
+  Flex,
+  Skeleton,
+  Text,
+  TextField,
+} from "@radix-ui/themes";
 import { useState } from "react";
 import MovieList from "./MovieList";
 
@@ -31,33 +38,34 @@ function MoviesPage() {
   const isError = null;
   const error = { message: null };
 
-  const movies = null;
-  // const movies = [
-  //   {
-  //     _id: "1ouoiwqe",
-  //     title: "The Shawshank Redemption",
-  //     genre: "drama",
-  //     rank: 1,
-  //   },
-  //   {
-  //     _id: "2ouoiwqe",
-  //     title: "The Godfather",
-  //     genre: "crime, drama",
-  //     rank: 1,
-  //   },
-  //   {
-  //     _id: "3ouoiwqe",
-  //     title: "The Dark Knight",
-  //     genre: "action, crime",
-  //     rank: 1,
-  //   },
-  //   {
-  //     _id: "4ouoiwqe",
-  //     title: "Pulp Fiction",
-  //     genre: "crime, drama",
-  //     rank: 1,
-  //   },
-  // ];
+  let movies = [
+    {
+      _id: "1ouoiwqe",
+      title: "The Shawshank Redemption",
+      genre: "drama",
+      rank: 1,
+    },
+    {
+      _id: "2ouoiwqe",
+      title: "The Godfather",
+      genre: "crime, drama",
+      rank: 1,
+    },
+    {
+      _id: "3ouoiwqe",
+      title: "The Dark Knight",
+      genre: "action, crime",
+      rank: 1,
+    },
+    {
+      _id: "4ouoiwqe",
+      title: "Pulp Fiction",
+      genre: "crime, drama",
+      rank: 1,
+    },
+  ];
+
+  // movies = null;
 
   return (
     <div>
@@ -118,10 +126,41 @@ function MoviesPage() {
         </>
       ) : isPending ? (
         // Loading Message
-        <div className="center-page">
-          <span className="spinner primary"></span>
-          <p>Loading...</p>
-        </div>
+        <>
+          <Skeleton className="!h-14"></Skeleton>
+
+          <div className="grid grid-cols-3 gap-8 my-10">
+            {[1, 2, 3].map((_, index) => (
+              <Container size="1">
+                <Flex direction="column" gap="2">
+                  <Skeleton className="!h-64"></Skeleton>
+
+                  <Flex justify="between">
+                    <Text>
+                      <Skeleton>Movie Title Movie Title</Skeleton>
+                    </Text>
+                    <Text>
+                      <Skeleton>Heart </Skeleton>
+                    </Text>
+                  </Flex>
+
+                  <Text>
+                    <Skeleton>Genre Genre</Skeleton>
+                  </Text>
+
+                  <Flex justify="between">
+                    <Text>
+                      <Skeleton>Rank</Skeleton>
+                    </Text>
+                    <Text>
+                      <Skeleton>View Details</Skeleton>
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Container>
+            ))}
+          </div>
+        </>
       ) : isError && error instanceof Error ? (
         // Error Message
         <div className="row">
