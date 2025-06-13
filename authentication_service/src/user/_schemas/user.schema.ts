@@ -28,7 +28,9 @@ export class User {
   refreshTokenExpiration: Date;
 
   constructor(partial: Partial<User>) {
-    partial.id = partial._id.toString();
+    if (partial._id) {
+      partial.id = partial._id.toString();
+    }
     Object.assign(this, partial);
   }
 }

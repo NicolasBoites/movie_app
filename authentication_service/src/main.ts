@@ -5,12 +5,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { TransformInterceptor } from './common/interceptor/interceptor.transform';
 
 async function bootstrap() {
+  if(!process.env.MONGODB_URI) {
+    throw new Error('Missing MONGODB_URIin environment variables');
+  }
   const app = await NestFactory.create(AppModule, {cors: true});
-  //app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist:true,
-      //trasnform:true //revisar
     })
   );
     const config = new DocumentBuilder()
@@ -18,10 +19,10 @@ async function bootstrap() {
     .setDescription('Auth API')
     .setVersion('1.0')
     .addTag('auth')
+    .addBearerAuth()
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  const documentFactory = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

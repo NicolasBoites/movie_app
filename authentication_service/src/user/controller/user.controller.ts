@@ -13,7 +13,9 @@ import { CreateUserDto } from '../_dtos/create_user.dto';
 import { UpdateUserDto } from '../_dtos/update_user.dto';
 import { User } from '../_schemas/user.schema';
 import { UserService } from '../service/user.service';
-
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+@ApiTags('users')
+@ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
 @Controller('users')
 export class UserController {
@@ -26,7 +28,7 @@ export class UserController {
 
   @Get()
   async findAll(): Promise<User[]> {
-    return (await this.userService.findAll()).map((x) => new User(x));
+    return await this.userService.findAll();
   }
 
   @Get(':id')
