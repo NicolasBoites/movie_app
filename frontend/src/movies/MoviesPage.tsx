@@ -175,7 +175,10 @@ function MoviesPage() {
         </div>
       ) : (
         <div className="w-full flex justify-around">
-          <h3>Not movies found</h3>
+          <div className="flex flex-col justify-center items-center">
+            <img src="/movie-not-found.png" className="max-w-64" alt="" />
+            <h3 className="text-4xl my-4">Not movies found</h3>
+          </div>
         </div>
       )}
     </div>
