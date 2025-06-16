@@ -11,7 +11,7 @@ export class User {
 
   id: string;
   @Prop({ required: true })
-  name: string;
+  username: string;
 
   @Prop({ required: true, unique: true })
   email: string;
@@ -26,6 +26,9 @@ export class User {
   @Exclude()
   @Prop()
   refreshTokenExpiration: Date;
+
+  @Prop({ type: [String], default: [] })
+  favoriteMovieIds: string[];
 
   constructor(partial: Partial<User>) {
     if (partial._id) {
