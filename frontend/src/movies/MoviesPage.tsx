@@ -42,7 +42,7 @@ function MoviesPage() {
   const navigate = useNavigate();
 
   const handleAddMovieClick = () => {
-    navigate("/home"); // Replace with your route
+    navigate("/add-movie"); // Replace with your route
   };
 
   let movies = [

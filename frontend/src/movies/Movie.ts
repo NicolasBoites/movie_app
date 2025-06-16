@@ -1,4 +1,4 @@
-export default class Movie {
+export  class Movie {
   _id: string | undefined;
   title: string = '';
   rank: number = 0;
