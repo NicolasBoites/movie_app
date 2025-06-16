@@ -1,4 +1,9 @@
-import { MagnifyingGlassIcon, PlusIcon } from "@radix-ui/react-icons";
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
 import {
   Button,
   Container,
@@ -7,37 +12,35 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieList from "./MovieList";
+import { useMovies } from "./moviesHooks";
 
 function MoviesPage() {
-  // const {
-  //   data,
-  //   isPending,
-  //   error,
-  //   isError,
-  //   isFetching,
-  //   page,
-  //   setPage,
-  //   setName,
-  // } = useProjects();
+  const {
+    data,
+    isPending,
+    error,
+    isError,
+    isFetching,
+    page,
+    setPage,
+    title,
+    setTitle,
+  } = useMovies();
 
-  // const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // const debounce = (query: string) => {
-  //   if (debounceTimeout.current) {
-  //     clearTimeout(debounceTimeout.current); // limpia el timeout anterior
-  //   }
+  const debounce = (query: string) => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current); // limpia el timeout anterior
+    }
 
-  //   debounceTimeout.current = setTimeout(() => {
-  //     setName(query.trim());
-  //   }, 1200);
-  // };
-
-  const isPending = null;
-  const isError = null;
-  const error = { message: null };
+    debounceTimeout.current = setTimeout(() => {
+      setTitle(query.trim());
+    }, 1200);
+  };
 
   const navigate = useNavigate();
 
@@ -45,34 +48,7 @@ function MoviesPage() {
     navigate("/add-movie"); // Replace with your route
   };
 
-  let movies = [
-    {
-      _id: "1ouoiwqe",
-      title: "The Shawshank Redemption",
-      genre: "drama",
-      rank: 1,
-    },
-    {
-      _id: "2ouoiwqe",
-      title: "The Godfather",
-      genre: "crime, drama",
-      rank: 1,
-    },
-    {
-      _id: "3ouoiwqe",
-      title: "The Dark Knight",
-      genre: "action, crime",
-      rank: 1,
-    },
-    {
-      _id: "4ouoiwqe",
-      title: "Pulp Fiction",
-      genre: "crime, drama",
-      rank: 1,
-    },
-  ];
-
-  // movies = null;
+  const movies = data;
 
   return (
     <div>
@@ -99,6 +75,8 @@ function MoviesPage() {
         <>
           {/* Search bar */}
           <TextField.Root
+            value={title}
+            onChange={(e) => debounce(e.target.value)}
             placeholder="Search movies by title..."
             className="text-xl !text-slate-500 !font-medium !border-0 !border-b !border-slate-300 !ring-0 !outline-0 !h-12 !flex !items-center"
           >
@@ -110,29 +88,37 @@ function MoviesPage() {
           <MovieList movies={movies} />
 
           {/* Pagination */}
-          {/* <div className="flex justify-around !my-10">
-            <div className="flex justify-around !w-72">
+          <div className="flex justify-center my-10">
+            <div className="flex items-center gap-2">
+              {/* Botón Anterior */}
               <button
-                className="!mx-0 w-full !border-1 !border-slate-300 !rounded-lg "
-                onClick={() => setPage((oldPage) => oldPage - 1)}
+                className="border border-slate-300 w-10 h-10 flex justify-center items-center"
+                onClick={() => setPage((old) => old - 1)}
                 disabled={page === 0}
               >
-                Previous
+                <CaretLeftIcon />
               </button>
-              <button className="!w-20  !rounded-full !mx-2">{page + 1}</button>
+
+              {/* Botones de Página */}
+
               <button
-                className="!mx-0 w-full !border-1 !border-slate-300 !rounded-lg "
-                onClick={() => {
-                  // if (!isPreviousData) {
-                  setPage((oldPage) => oldPage + 1);
-                  // }
-                }}
-                disabled={data.length != 10}
+                onClick={() => setPage(page)}
+                className={"w-10 h-10 border bg-slate-900 text-white"}
+                disabled={page < 0}
               >
-                Next
+                {page + 1}
+              </button>
+
+              {/* Botón Siguiente */}
+              <button
+                className="border border-slate-300 w-10 h-10 flex justify-center items-center"
+                onClick={() => setPage((old) => old + 1)}
+                disabled={data.length !== 10}
+              >
+                <CaretRightIcon />
               </button>
             </div>
-          </div> */}
+          </div>
         </>
       ) : isPending ? (
         // Loading Message
@@ -141,7 +127,7 @@ function MoviesPage() {
 
           <div className="grid grid-cols-3 gap-8 my-10">
             {[1, 2, 3].map((_, index) => (
-              <Container size="1">
+              <Container size="1" key={index}>
                 <Flex direction="column" gap="2">
                   <Skeleton className="!h-64"></Skeleton>
 
