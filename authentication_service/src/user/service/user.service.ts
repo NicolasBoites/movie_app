@@ -1,0 +1,94 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateUserDto } from '../_dtos/create_user.dto';
+import { UpdateUserDto } from '../_dtos/update_user.dto';
+import { User, UserDocument } from '../_schemas/user.schema';
+import { UserResponseDto } from '../_dtos/user-response.dto'; // Asegúrate de que el nombre del archivo es 'user-response.dto.ts'
+
+@Injectable()
+export class UserService {
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  private mapToUserResponseDto(user: User): UserResponseDto {
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      favoriteMovieIds: user.favoriteMovieIds || [],
+    };
+  }
+
+  //MODEL services
+  async createInternal(createUserDto: CreateUserDto): Promise<User> {
+    const createdUser = new this.userModel(createUserDto);
+    const savedUser = await createdUser.save();
+    return savedUser.toObject();
+  }
+
+  async findByEmailInternal(email: string): Promise<User | null> {
+    const user = await this.userModel.findOne({ email }).lean().exec();
+    return user;
+  }
+
+  async findByIdInternal(id: string): Promise<User | null> {
+    const user = await this.userModel.findById(id).lean().exec();
+    return user;
+  }
+
+  //DTO services
+  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    const newUser = await this.createInternal(createUserDto);
+    return this.mapToUserResponseDto(newUser);
+  }
+
+  async findAll(): Promise<UserResponseDto[]> {
+    const res = await this.userModel.find().lean();
+    return res.map(user => this.mapToUserResponseDto(user));
+  }
+
+  async findById(id: string): Promise<UserResponseDto> {
+    const user = await this.findByIdInternal(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return this.mapToUserResponseDto(user);
+  }
+
+  async findByEmail(email: string): Promise<UserResponseDto | null> {
+    const user = await this.findByEmailInternal(email);
+    return user ? this.mapToUserResponseDto(user) : null;
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<boolean> {
+    const result = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    }).lean().exec();
+    if (!result) throw new NotFoundException(`User with id ${id} not found`);
+    return true;
+  }
+
+  async remove(id: string): Promise<UserResponseDto> {
+    const deleted = await this.userModel.findByIdAndDelete(id).lean().exec();
+    if (!deleted) throw new NotFoundException(`User with id ${id} not found`);
+    return this.mapToUserResponseDto(deleted);
+  }
+
+  async addFavoriteMovie(userId: string, movieId: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException(`User with id ${userId} not found.`);
+    if (!user.favoriteMovieIds.includes(movieId)) {
+      user.favoriteMovieIds.push(movieId);
+      await user.save();
+    }
+    return true;
+  }
+
+  async removeFavoriteMovie(userId: string, movieId: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException(`User with id ${userId} not found.`);
+    user.favoriteMovieIds = user.favoriteMovieIds.filter(id => id !== movieId);
+    await user.save();
+    return true;
+  }
+}
