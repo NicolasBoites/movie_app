@@ -11,7 +11,7 @@ export default (data) => {
 		method: 'POST',
 		data: JSON.stringify(data)
 	}).then(res => {
-		if (res.status)
+		if (res.ok)
 			return res.json()
 		else if (res.status<500)
 			return Promise.reject(res.json())

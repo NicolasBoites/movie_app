@@ -2,6 +2,7 @@ import { ExitIcon } from "@radix-ui/react-icons";
 import { Flex, Avatar } from "@radix-ui/themes";
 import { BrowserRouter, NavLink, Route, Routes } from "react-router";
 import HomePage from "./home/HomePage";
+import MovieRegister from './register/MovieRegister'
 
 function App() {
   return (
@@ -45,7 +46,7 @@ function App() {
       <div className="px-6 py-12">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/add-movie" element={<HomePage />} />
+          <Route path="/add-movie" element={<MovieRegister />} />
         </Routes>
       </div>
     </BrowserRouter>
