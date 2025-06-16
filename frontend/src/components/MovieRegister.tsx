@@ -3,7 +3,7 @@ import { ArrowLeftIcon, PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 
 export default function () {
     return <Grid columns="1" gap="2" style={{ justifyItems: 'center', }} align="center" mt="9">
-        <Grid width="45rem" gap="5" align="center">
+        <Grid gap="5" align="center">
             <Flex align="center" gap="4" >
                 <Box >
                     <IconButton variant="ghost" color="gray" >
@@ -17,45 +17,41 @@ export default function () {
                     </Text>
                 </Grid>
             </Flex>
-            <Grid gap="4" style={{ border: '1px solid #d2d7db' }} p="5">
-                <Grid gap="3">
-                    <Text size="2">MOVIE TITLE</Text>
-                    <TextField.Root color="gray" variant="surface" style={{ fontSize: '1vmax', height: '3vmax' }} placeholder="Enter movie title..." />
-                </Grid>
-                <Grid gap="3">
-                    <Text size="2">RANK</Text>
-                    <TextField.Root color='gray' variant="surface" style={{ fontSize: '1vmax', height: '3vmax' }} placeholder="Enter rank number..." />
-                </Grid>
-                <Grid gap="3">
-                    <Text size="2">Genre</Text>
-                    <Select.Root size="3" >
-                        <Select.Trigger placeholder='Select genre...' color='gray' variant="surface" style={{ fontSize: '1vmax', height: '3vmax', width: 'auto' }} />
-                        <Select.Content color="gray" variant="solid">
-                            <Select.Item value="0">
-                                Thriller
-                            </Select.Item>
-                            <Select.Item value="1">
-                                Joke
-                            </Select.Item>
-                            <Select.Item value="2">
-                                Terror
-                            </Select.Item>
-                            <Select.Item value="3">
-                                Suspence
-                            </Select.Item>
-                        </Select.Content>
-                    </Select.Root>
-                </Grid>
-                <Grid columns="2" rows="1" gap="5" mt="3" >
-                    <Button radius="none" size="4" variant="outline" color='gray' highContrast>
-                        Cancel
-                    </Button>
-                    <Button radius="none" size="4" color='gray' highContrast>
-                        <PlusIcon />
-                        Create Movie
-                    </Button>
-                </Grid>
-            </Grid>
+						<Card>
+							<Grid gap="4">
+								<Text size="2">MOVIE TITLE</Text>
+								<TextField.Root color="gray" variant="surface"  size="3" placeholder="Enter movie title..." />
+								<Text size="2">RANK</Text>
+								<TextField.Root color='gray' variant="surface" size="3"  placeholder="Enter rank number..." />
+								<Text size="2">Genre</Text>
+								<Select.Root size="3" >
+										<Select.Trigger placeholder='Select genre...' color='gray' variant="surface"  />
+										<Select.Content color="gray" variant="solid">
+												<Select.Item value="0">
+														Thriller
+												</Select.Item>
+												<Select.Item value="1">
+														Joke
+												</Select.Item>
+												<Select.Item value="2">
+														Terror
+												</Select.Item>
+												<Select.Item value="3">
+														Suspence
+												</Select.Item>
+										</Select.Content>
+								</Select.Root>
+							</Grid>
+							<Grid columns="2" gap="3" justify="center" mt="6">
+								<Button radius="none" size="4" variant="outline" color='gray' highContrast>
+											Cancel
+									</Button>
+									<Button radius="none" size="4" color='gray' highContrast>
+											<PlusIcon />
+											Create Movie
+									</Button>
+							</Grid>
+						</Card>
             <Card>
                 <Flex >
                     <Box mt="3">
