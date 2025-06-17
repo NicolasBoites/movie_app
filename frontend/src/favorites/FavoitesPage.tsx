@@ -1,6 +1,7 @@
 import {
   CaretLeftIcon,
   CaretRightIcon,
+  HeartFilledIcon,
   MagnifyingGlassIcon,
   PlusIcon,
 } from "@radix-ui/react-icons";
@@ -14,10 +15,10 @@ import {
 } from "@radix-ui/themes";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MovieList from "./MovieList";
-import { useMovies } from "./moviesHooks";
+import FavoriteList from "../favorites/FavoriteList";
+import { useFavorites } from "./favoritesHooks";
 
-function MoviesPage() {
+function FavoritesPage() {
   const {
     data,
     isPending,
@@ -28,7 +29,7 @@ function MoviesPage() {
     setPage,
     title,
     setTitle,
-  } = useMovies();
+  } = useFavorites();
 
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -44,11 +45,11 @@ function MoviesPage() {
 
   const navigate = useNavigate();
 
-  const handleAddMovieClick = () => {
+  const handleAddFavoriteClick = () => {
     navigate("/add-movie"); // Replace with your route
   };
 
-  const movies = data;
+  const favorites = data;
 
   return (
     <div>
@@ -56,68 +57,40 @@ function MoviesPage() {
       <div className="flex flex-row items-center justify-between mb-12">
         <div>
           <h2 className="text-slate-800 text-4xl font-medium my-4">
-            Movies Collection
+            Favorites Collection
           </h2>
           <p className="text-slate-500 font-medium text-lg">
-            Discover and manage films
+            Your curated collection of favorite films
           </p>
         </div>
-        <button
-          onClick={handleAddMovieClick}
-          className="flex items-center justify-between space-x-1 rounded-none px-6 py-3 bg-slate-900 font-medium uppercase hover:bg-slate-600 cursor-pointer text-slate-50 transition-colors duration-200"
-        >
-          <PlusIcon className="!font-bold !mx-1" />
-          Add Movie
-        </button>
       </div>
 
-      {movies ? (
+      {favorites ? (
         <>
           {/* Search bar */}
           <TextField.Root
             value={title}
             onChange={(e) => debounce(e.target.value)}
-            placeholder="Search movies by title..."
+            placeholder="Search favorites by title..."
             className="text-xl !text-slate-500 !font-medium !border-0 !border-b !border-slate-300 !ring-0 !outline-0 !h-12 !flex !items-center"
           >
             <TextField.Slot></TextField.Slot>
             <MagnifyingGlassIcon height="22" width="22" />
           </TextField.Root>
 
-          {/* Movies */}
-          <MovieList movies={movies} />
+          {/* Favorites */}
+          <FavoriteList favorites={favorites} />
 
           {/* Pagination */}
-          <div className="flex justify-center my-10">
-            <div className="flex items-center gap-2">
-              {/* Botón Anterior */}
-              <button
-                className="border border-slate-300 w-10 h-10 flex justify-center items-center"
-                onClick={() => setPage((old) => old - 1)}
-                disabled={page === 0}
-              >
-                <CaretLeftIcon />
-              </button>
 
-              {/* Botones de Página */}
-
-              <button
-                onClick={() => setPage(page)}
-                className={"w-10 h-10 border bg-slate-900 text-white"}
-                disabled={page < 0}
-              >
-                {page + 1}
-              </button>
-
-              {/* Botón Siguiente */}
-              <button
-                className="border border-slate-300 w-10 h-10 flex justify-center items-center"
-                onClick={() => setPage((old) => old + 1)}
-                disabled={data.length !== 10}
-              >
-                <CaretRightIcon />
-              </button>
-            </div>
+          {/* Botón Siguiente */}
+          <div
+            className="border border-slate-300 py-8 flex justify-center items-center w-full">
+            <HeartFilledIcon className="text-slate-400" />
+            <Text className="text-slate-400 font-medium !mx-2">Showing {} of {} favorite movies</Text>
+            <Text as="div" 
+            // onclick
+             className="text-slate-900 font-medium">Load more</Text>
           </div>
         </>
       ) : isPending ? (
@@ -133,7 +106,7 @@ function MoviesPage() {
 
                   <Flex justify="between">
                     <Text>
-                      <Skeleton>Movie Title Movie Title</Skeleton>
+                      <Skeleton>Favorite Title Favorite Title</Skeleton>
                     </Text>
                     <Text>
                       <Skeleton>Heart </Skeleton>
@@ -173,7 +146,7 @@ function MoviesPage() {
         <div className="w-full flex justify-around">
           <div className="flex flex-col justify-center items-center">
             <img src="/movie-not-found.png" className="max-w-64" alt="" />
-            <h3 className="text-4xl my-4">Not movies found</h3>
+            <h3 className="text-4xl my-4">Not favorites found</h3>
           </div>
         </div>
       )}
@@ -181,4 +154,4 @@ function MoviesPage() {
   );
 }
 
-export default MoviesPage;
+export default FavoritesPage;
