@@ -3,6 +3,7 @@ import { Flex, Avatar } from "@radix-ui/themes";
 import { BrowserRouter, NavLink, Route, Routes } from "react-router";
 import HomePage from "./home/HomePage";
 import MovieRegister from './register/MovieRegister'
+import MovieUpdate from './register/UpdateMovie'
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/add-movie" element={<MovieRegister />} />
+          <Route path="/update-movie" element={<MovieUpdate />} />
         </Routes>
       </div>
     </BrowserRouter>
