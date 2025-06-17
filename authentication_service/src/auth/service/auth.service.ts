@@ -7,11 +7,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { UserService } from '../../user/service/user.service';
-import { AuthDto } from '../_dtos/auth.dto';
-import { CreateUserDto } from '../../user/_dtos/create_user.dto';
+import { AuthDto } from '../../common/_dtos/auth.dto';
+import { CreateUserDto } from '../../common/_dtos/create_user.dto';
 import { LoginResponse } from '../_types/res.login.interface';
 import { Tokens } from '../_types/tokens.type';
-import { User } from '../../user/_schemas/user.schema'; 
 
 @Injectable()
 export class AuthService {
@@ -73,7 +72,7 @@ export class AuthService {
 
   async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.userService.update(userId, { 
+    await this.userService.update(userId, {
       refreshToken: hashedRefreshToken,
     });
   }
@@ -97,7 +96,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-          expiresIn: '7d',
+          expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRATION'),
         },
       ),
     ]);
