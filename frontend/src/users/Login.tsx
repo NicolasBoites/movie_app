@@ -22,12 +22,12 @@ export default function Login () {
     <Title title="Welcome back" subTitle="Enter your credential to continue" backButton={false}/>
     <Grid gap="4" width="100%" maxWidth="20rem" mt="4">
         <Text  size="2" >Email address</Text>
-        <TextField.Root name="email" size="3" onChange={addValues} placeholder="Enter your email" />
+        <TextField.Root radius="none" name="email" size="3" onChange={addValues} placeholder="Enter your email" />
         {errors.email && <Text size="2" color="red">{errors.email}</Text>}
         <Text size="2">Password</Text>
-        <TextField.Root name="password" size="3"  onChange={addValues} placeholder="Enter your password" />
+        <TextField.Root radius="none" name="password" size="3"  onChange={addValues} placeholder="Enter your password" />
         {errors.password && <Text size="2" color="red">{errors.password}</Text>}
-        <Button onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">Sign in</Button>
+        <Button radius="none" onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">SIGN IN</Button>
     </Grid>
     <Grid mt="5">
         <Text>New to our platform? <strong><Link to="/register">Create an account</Link></strong></Text>
