@@ -1,75 +1,44 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Put,
-  HttpCode,
-  HttpStatus,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MovieService } from '../service/movie.service';
 import { CreateMovieDto } from '../dto/create-movie.dto';
 import { UpdateMovieDto } from '../dto/update-movie.dto';
 
-@Controller('movies')
+@Injectable()
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-  ) {
-    const movies = await this.movieService.findAll(page, limit);
+  @MessagePattern({ cmd: 'get_movies' })
+  async findAll(@Payload() payload: { page: number; limit: number; title?: string }) {
+    const { page, limit, title } = payload;
     return {
       message: 'Movies found successfully',
-      data: movies,
+      data: await this.movieService.findAll(page, limit, title),
     };
   }
 
-
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  async findOne(@Param('id') id: string) {
+  @MessagePattern({ cmd: 'get_movie' })
+  async findOne(@Payload() id: string) {
     const movie = await this.movieService.findOne(id);
-    return {
-      message: 'Movie found successfully',
-      data: movie,
-    };
+    return { message: 'Movie found successfully', data: movie };
   }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createMovieDto: CreateMovieDto) {
-    const movie = await this.movieService.create(createMovieDto);
-    return {
-      message: 'Movie created successfully',
-      data: movie,
-    };
+  @MessagePattern({ cmd: 'create_movie' })
+  async create(@Payload() createDto: CreateMovieDto) {
+    const movie = await this.movieService.create(createDto);
+    return { message: 'Movie created successfully', data: movie };
   }
 
-  @Put(':id')
-  @HttpCode(HttpStatus.OK)
-  async update(
-    @Param('id') id: string,
-    @Body() updateMovieDto: UpdateMovieDto,
-  ) {
-    const movie = await this.movieService.update(id, updateMovieDto);
-    return {
-      message: 'Movie updated successfully',
-      data: movie,
-    };
+  @MessagePattern({ cmd: 'update_movie' })
+  async update(@Payload() payload: { id: string; updateDto: UpdateMovieDto }) {
+    const { id, updateDto } = payload;
+    const movie = await this.movieService.update(id, updateDto);
+    return { message: 'Movie updated successfully', data: movie };
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  async remove(@Param('id') id: string) {
-    return this.movieService.remove(id);
+  @MessagePattern({ cmd: 'delete_movie' })
+  async remove(@Payload() id: string) {
+    const result = await this.movieService.remove(id);
+    return result;
   }
 }
