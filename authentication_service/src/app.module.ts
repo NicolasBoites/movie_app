@@ -19,6 +19,8 @@ import * as Joi from 'joi';
         allowUnknown: true,
         abortEarly: false,
       },
+      isGlobal: true,
+      envFilePath: '.env',
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -27,7 +29,6 @@ import * as Joi from 'joi';
         uri: configService.get<string>('MONGODB_URI'),
       }),
     }),
-  //MongooseModule.forRoot(process.env.MONGODB_URI.toString()),
   AuthModule,
   UserModule],
 })
