@@ -1,18 +1,17 @@
-import { Movie } from '../movies/Movie';
-// import Movie from '../interfaces/movies';
+import { Favorite } from '../favorites/Favorite';
+// import Favorite from '../interfaces/favorites';
 
-import movies from './movies';
 const baseUrl = 'http://localhost:3000';
-const url = `${baseUrl}/movie`;
+const url = `${baseUrl}/favorite`;
 
 function translateStatusToErrorMessage(status: number) {
     switch (status) {
         case 401:
             return 'Please login again.';
         case 403:
-            return 'You do not have permission to view the movie(s).';
+            return 'You do not have permission to view the favorite(s).';
         default:
-            return 'There was an error retrieving the movie(s). Please try again.';
+            return 'There was an error retrieving the favorite(s). Please try again.';
     }
 }
 
@@ -45,19 +44,19 @@ function delay(ms: number) {
     };
 }
 
-function convertToMovieModels(data: any[]): Movie[] {
-    let movies: Movie[] = data.map(convertToMovieModel);
-    return movies;
+function convertToFavoriteModels(data: any[]): Favorite[] {
+    let favorites: Favorite[] = data.map(convertToFavoriteModel);
+    return favorites;
 }
 
-function convertToMovieModel(item: any): Movie {
-    return new Movie(item);
+function convertToFavoriteModel(item: any): Favorite {
+    return new Favorite(item);
 }
 
-const movieAPI = {
+const favoriteAPI = {
     get(page = 1, limit = 10, name = null) {
 
-        let movies = [
+        let favorites = [
             {
                 id: "1ouoiwqe",
                 title: "The Shawshank Redemption",
@@ -203,23 +202,23 @@ const movieAPI = {
                 "rank": 1
             },
         ];
-        return movies;
+        return favorites;
         // return fetch(`${url}?_name=${name}&_page=${page}&_limit=${limit}&_sort=name`)
         //     // .then(delay(2000))
         //     .then(checkStatus)
         //     .then(parseJSON)
-        //     .then(convertToMovieModels)
+        //     .then(convertToFavoriteModels)
         //     .catch((error: TypeError) => {
         //         console.log('log client error ' + error);
         //         throw new Error(
-        //             'There was an error retrieving the movies. Please try again.'
+        //             'There was an error retrieving the favorites. Please try again.'
         //         );
         //     });
     },
-    put(movie: Movie) {
-        return fetch(`${url}/${movie.id}`, {
+    put(favorite: Favorite) {
+        return fetch(`${url}/${favorite.id}`, {
             method: 'PUT',
-            body: JSON.stringify(movie),
+            body: JSON.stringify(favorite),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -230,7 +229,7 @@ const movieAPI = {
             .catch((error: TypeError) => {
                 console.log('log client error ' + error);
                 throw new Error(
-                    'There was an error updating the movie. Please try again.'
+                    'There was an error updating the favorite. Please try again.'
                 );
             });
     },
@@ -239,13 +238,13 @@ const movieAPI = {
         return fetch(`${url}/${id}`)
             .then(checkStatus)
             .then(parseJSON)
-            .then(convertToMovieModel);
+            .then(convertToFavoriteModel);
     },
 
-    post(movie: Movie) {
+    post(favorite: Favorite) {
         return fetch(`${url}`, {
             method: 'POST',
-            body: JSON.stringify(movie),
+            body: JSON.stringify(favorite),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -256,15 +255,15 @@ const movieAPI = {
             .catch((error: TypeError) => {
                 console.log('log client error ' + error);
                 throw new Error(
-                    'There was an error updating the movie. Please try again.'
+                    'There was an error updating the favorite. Please try again.'
                 );
             });
     },
 
-    delete(movie: Movie) {
-        return fetch(`${url}/${movie.id}`, {
+    delete(favorite: Favorite) {
+        return fetch(`${url}/${favorite.id}`, {
             method: 'DELETE',
-            body: JSON.stringify(movie),
+            body: JSON.stringify(favorite),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -272,14 +271,14 @@ const movieAPI = {
             // .then(delay(2000))
             .then(checkStatus)
             .then(parseJSON)
-            // .then(convertToMovieModels)
+            // .then(convertToFavoriteModels)
             .catch((error: TypeError) => {
                 console.log('log client error ' + error);
                 throw new Error(
-                    'There was an error retrieving the movies. Please try again.'
+                    'There was an error retrieving the favorites. Please try again.'
                 );
             });
     },
 };
 
-export { movieAPI };
+export { favoriteAPI };

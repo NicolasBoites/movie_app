@@ -24,7 +24,7 @@ function MovieList({ movies }: MovieListProps) {
         <div className="grid grid-cols-3 gap-8 my-10">
             {
                 movies.map((movie) => (
-                    <div className="" key={movie._id}>
+                    <div className="" key={movie.id}>
 
                         {
                             movieBeingEdited === movie ?

@@ -1,4 +1,4 @@
-export  class Movie {
+export class Favorite {
   id: string | undefined;
   title: string = '';
   rank: number = 0;
