@@ -4,6 +4,7 @@ import { BrowserRouter, NavLink, Route, Routes } from "react-router";
 import HomePage from "./home/HomePage";
 import MovieRegister from './register/MovieRegister'
 import MovieUpdate from './register/UpdateMovie'
+import Login from "./users/Login";
 
 function App() {
   return (
@@ -46,9 +47,10 @@ function App() {
 
       <div className="px-6 py-12">
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/add-movie" element={<MovieRegister />} />
-          <Route path="/update-movie" element={<MovieUpdate />} />
+          <Route path="/update-movie/:id" element={<MovieUpdate />} />
         </Routes>
       </div>
     </BrowserRouter>

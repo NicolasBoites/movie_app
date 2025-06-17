@@ -1,38 +1,45 @@
 import {Text, Grid, TextField, Select} from '@radix-ui/themes'
+import { SyntheticEvent } from 'react';
+import {IMovie} from '../interfaces/movies'
 
-export default function Form (props: any) {
+const genre = ['Thriller', 'Joke', 'Terror', 'Suspence']
+
+interface Props {
+	onChange: (old:any)=>void;
+	errors:IMovie;
+}
+
+export default function Form ({onChange, errors={}}: Props) {
 
 	const saveData = (event: SyntheticEvent) => {
 		const el = event.target as HTMLInputElement;
-		props.onChange(old => ({...old, [el.name]: el.value}));
+		onChange((old:IMovie) => ({...old, [el.name]: el.value}));
 	}
 
-	const selectGenre = (value: int) => {
-		props.onChange({...movie, genre: value});
+	const selectGenre = (value: string) => {
+		onChange((old:IMovie) => ({...old, genre: value}));
 	}
 
 	return <Grid gap="4" m="4">
 			<Text size="2">MOVIE TITLE</Text>
 			<TextField.Root name="title" color="gray" onChange={saveData} variant="surface"  size="3" placeholder="Enter movie title..." />
+			{errors.title && <Text color="red">{errors.title}</Text>}
 			<Text size="2">RANK</Text>
 			<TextField.Root name="rank" color='gray' onChange={saveData} variant="surface" size="3"  placeholder="Enter rank number..." />
+			{errors.rank && <Text color="red">{errors.rank}</Text>}
 			<Text size="2">Genre</Text>
 			<Select.Root size="3" name="genre" onValueChange={selectGenre}>
 					<Select.Trigger placeholder='Select genre...' color='gray' variant="surface"  />
 					<Select.Content color="gray" variant="solid">
-							<Select.Item value="0">
-									Thriller
-							</Select.Item>
-							<Select.Item value="1">
-									Joke
-							</Select.Item>
-							<Select.Item value="2">
-									Terror
-							</Select.Item>
-							<Select.Item value="3">
-									Suspence
-							</Select.Item>
+						{
+							genre.map((genre) => 
+								<Select.Item value={genre} >
+									{genre}
+								</Select.Item>
+							)
+						}
 					</Select.Content>
 			</Select.Root>
+			{errors.genre && <Text color="red">{errors.genre}</Text>}
 		</Grid>;
 }

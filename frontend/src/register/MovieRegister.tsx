@@ -1,40 +1,48 @@
-import { Text, Flex, Box, Card, Grid, Button } from '@radix-ui/themes'
-import {  PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
+import { Text, Flex, Box, Card, Grid } from '@radix-ui/themes'
+import { PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { useState } from 'react'
-import Movie from '../fetchs/movies'
-import {useNavigate} from 'react-router'
-import type IMovie from '../interfaces/movies'
+import MovieFetch from '../fetchs/movies'
+import { useNavigate } from 'react-router'
+import {type IMovie, Movie} from '../interfaces/movies'
 import Form from './Form'
-import Title from './Title'
+import Title from '../components/Title'
+import ButtonOptions from './ButtonOptions'
 
 export default function () {
-	const [movie, setMovie]:any = useState<IMovie>({});
-	const [errors, setErrors] = useState<IMovie>({});
-	const navigate = useNavigate();
+    const [movie, setMovie]: any = useState<IMovie>(new Movie());
+    const [errors, setErrors] = useState<IMovie>(new Movie());
+    const [isLoading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-	const saveMovie = () => {
-		Movie.post(movie)
-		.then(res => {
-			if (res.error)
-				navigate('/')
-		}).catch(async err => {
-			setErrors(await err)
-		})
-	}
+    const saveMovie = () => {
+        setLoading(true);
 
-	const getBack = () => {
-		navigate(-1)
-	}
+        MovieFetch(movie).post
+            .then(res => {
+                if (res.error)
+                    navigate('/')
+            }).catch(async err => {
+                setErrors(await err)
+            }).finally(() => {
+                setLoading(false)
+            })
+    }
+
+    const getBack = () => {
+        if(!isLoading)
+            navigate(-1)
+    }
+
     return <Grid columns="1" gap="2" style={{ justifyItems: 'center', }} align="center" mt="9">
         <Grid gap="5" align="center">
-            <Title title="Add New movie" subTitle="Create new movie entry for your collection" back={getBack}/>
-						<Card>
-							<Form onChange={setMovie}/>
-							<ButtonOptions>
-								<PlusIcon/>
-								Create movie
-							</ButtonOptions>
-						</Card>
+            <Title title="Add New movie" subTitle="Create new movie entry for your collection" back={getBack} />
+            <Card>
+                <Form onChange={setMovie} errors={errors}/>
+                <ButtonOptions onAccept={saveMovie} onCancel={getBack} isLoading={isLoading}>
+                    <PlusIcon />
+                    Create movie
+                </ButtonOptions>
+            </Card>
             <Card>
                 <Flex >
                     <Box mt="3">
