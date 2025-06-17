@@ -1,11 +1,9 @@
 import { Button, Grid, Text, TextField } from "@radix-ui/themes";
 import Title from "../components/Title";
-import { Link } from "react-router-dom";
 import { SyntheticEvent, useState } from "react";
 
-export default function Login () {
+export default function Register () {
     const [user, setUser] = useState({})
-    const [errors, setErrors] = useState({password:'', email:''})
     const [isLoading, setLoading] = useState(false)
 
     const addValues = (event: SyntheticEvent) => {
@@ -13,24 +11,20 @@ export default function Login () {
         setUser((old:any) => ({...old, [name]: value}));
     }
 
-    const logIn = () => {
-        setLoading(true)
-        setLoading(false)
-    }
+    const register = () => {}
 
     return <Grid columns="1" style={{justifyItems: 'center'}} >
-    <Title title="Welcome back" subTitle="Enter your credential to continue" backButton={false}/>
+    <Title title="Join us" subTitle="Create your account to get started"/>
     <Grid gap="4" width="100%" maxWidth="20rem" mt="4">
         <Text  size="2" >Email address</Text>
         <TextField.Root name="email" size="3" onChange={addValues} placeholder="Enter your email" />
-        {errors.email && <Text size="2" color="red">{errors.email}</Text>}
+        <Text size="2">Email address</Text>
         <Text size="2">Password</Text>
         <TextField.Root name="password" size="3"  onChange={addValues} placeholder="Enter your password" />
-        {errors.password && <Text size="2" color="red">{errors.password}</Text>}
-        <Button onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">Sign in</Button>
-    </Grid>
-    <Grid mt="5">
-        <Text>New to our platform? <strong><Link to="/register">Create an account</Link></strong></Text>
+        <Text size="2">Password</Text>
+        <TextField.Root name="password" size="3"  onChange={addValues} placeholder="Enter your password" />
+        {<Text size="2">Email address</Text>}
+        <Button onClick={register} loading={isLoading} mt="4" color="gray" highContrast size="4">Sign in</Button>
     </Grid>
     </Grid>
 }
