@@ -4,7 +4,7 @@ import { SyntheticEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register () {
-    const [user, setUser]:any = useState({});
+    const [user, setUser]:any = useState({terms:false});
     const [errors, setErrors]:any = useState({});
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -14,8 +14,13 @@ export default function Register () {
         setUser((old:any) => ({...old, [name]: value}));
     }
 
+    const checkTerms = () => {
+        setUser((old:any) => ({...old, terms: !old.terms}))
+    }
+
     const register = () => {
         setLoading(true)
+        setErrors({})
         if(!user?.terms)
             setErrors((old:any) => ({...old, terms: 'you must accept the terms'}))
         setLoading(false)
@@ -42,7 +47,7 @@ export default function Register () {
             {errors.confirm && <Text size="2" color="red">{errors.confirm}</Text>}
             <Text size="2" align="center">
                 <Flex gap="2">
-                    <Checkbox name="terms" onClick={addValues}/>
+                    <Checkbox color="gray" highContrast name="terms" onClick={checkTerms}/>
                     I agree to the Terms of Service and Privacy Policy
                 </Flex>
                 {errors.terms && <Text size="2" color="red">{errors.terms}</Text>}

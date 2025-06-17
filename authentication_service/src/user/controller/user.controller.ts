@@ -1,64 +1,46 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { AccessTokenGuard } from '../../common/gaurds/gaurd.access_token';
-import { CreateUserDto } from '../_dtos/create_user.dto';
-import { UpdateUserDto } from '../_dtos/update_user.dto';
-import { User } from '../_schemas/user.schema';
+import { Controller, ValidationPipe } from '@nestjs/common';
+import { CreateUserDto } from '../../common/_dtos/create_user.dto';
+import { UpdateUserDto } from '../../common/_dtos/update_user.dto';
 import { UserService } from '../service/user.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserResponseDto } from '../_dtos/user-response.dto';
-@ApiTags('users')
-@ApiBearerAuth()
-@UseGuards(AccessTokenGuard)
-@Controller('users')
+import { UserResponseDto } from '../../common/_dtos/user-response.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+
+@Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @MessagePattern({ cmd: 'create_user' })
+  async create(@Payload(ValidationPipe) payload: { createUserDto: CreateUserDto, userId?: string }): Promise<UserResponseDto> {
+    return this.userService.create(payload.createUserDto);
   }
 
-  @Get()
-  async findAll(): Promise<UserResponseDto[]> {
-    return await this.userService.findAll();
+  @MessagePattern({ cmd: 'find_all_users' })
+  async findAll(@Payload() payload: { userId?: string }): Promise<UserResponseDto[]> {
+    return this.userService.findAll();
   }
 
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    return await this.userService.findById(id);
+  @MessagePattern({ cmd: 'find_user_by_id' })
+  async findById(@Payload() payload: { id: string, userId?: string }): Promise<UserResponseDto> {
+    return this.userService.findById(payload.id);
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return await this.userService.update(id, updateUserDto);
+  @MessagePattern({ cmd: 'update_user' })
+  async update(@Payload() payload: { id: string, updateUserDto: UpdateUserDto, userId?: string }): Promise<boolean> {
+    return this.userService.update(payload.id, payload.updateUserDto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.userService.remove(id);
+  @MessagePattern({ cmd: 'remove_user' })
+  async remove(@Payload() payload: { id: string, userId?: string }): Promise<UserResponseDto> {
+    return this.userService.remove(payload.id);
   }
 
-  @Patch(':id/favorites/:movieId')
-  async addFavorite(@Param('id') id: string, @Param('movieId') movieId: string){
-    return await this.userService.addFavoriteMovie(id, movieId);
+  @MessagePattern({ cmd: 'add_favorite_movie' })
+  async addFavoriteMovie(@Payload() payload: { userId: string, movieId: string, actingUserId?: string }): Promise<boolean> {
+    return this.userService.addFavoriteMovie(payload.userId, payload.movieId);
   }
 
-  @Delete(':id/favorites/:movieId')
-  async removeFavorite(@Param('id') id: string, @Param('movieId') movieId: string) {
-    return await this.userService.removeFavoriteMovie(id, movieId);
-  }
-
-  @Get(':id/favorites')
-  async getFavoriteMovieIds(@Param('id') id: string) {
-    return await this.userService.findById(id).then(user => user.favoriteMovieIds);
+  @MessagePattern({ cmd: 'remove_favorite_movie' })
+  async removeFavoriteMovie(@Payload() payload: { userId: string, movieId: string, actingUserId?: string }): Promise<boolean> {
+    return this.userService.removeFavoriteMovie(payload.userId, payload.movieId);
   }
 }

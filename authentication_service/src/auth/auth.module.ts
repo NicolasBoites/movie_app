@@ -6,21 +6,30 @@ import { AccessTokenStrategy } from './strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.ACCESS_TOKEN_SECRET,
-    }),
     UserModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async(configService: ConfigService) => ({
+        secret: configService.get<string>('ACCESS_TOKEN_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AuthController],
   providers: [
-    ConfigService,
     AuthService,
     AccessTokenStrategy,
-    RefreshTokenStrategy]
+    RefreshTokenStrategy
+  ],
+  exports: [
+    AuthService,
+    JwtModule,
+    PassportModule,
+  ]
 })
 export class AuthModule {}

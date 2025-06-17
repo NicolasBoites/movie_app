@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateUserDto } from '../_dtos/create_user.dto';
-import { UpdateUserDto } from '../_dtos/update_user.dto';
+import { CreateUserDto } from '../../common/_dtos/create_user.dto';
+import { UpdateUserDto } from '../../common/_dtos/update_user.dto';
 import { User, UserDocument } from '../_schemas/user.schema';
-import { UserResponseDto } from '../_dtos/user-response.dto'; // Asegúrate de que el nombre del archivo es 'user-response.dto.ts'
+import { UserResponseDto } from '../../common/_dtos/user-response.dto';
 
 @Injectable()
 export class UserService {

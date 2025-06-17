@@ -1,4 +1,4 @@
-import { AuthDto } from '../../auth/_dtos/auth.dto';
+import { AuthDto } from '../../common/_dtos/auth.dto';
 
 export const AuthDtoStub = (): AuthDto => {
   return {

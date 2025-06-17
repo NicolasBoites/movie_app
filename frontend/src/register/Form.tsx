@@ -33,7 +33,7 @@ export default function Form ({onChange, errors={}}: Props) {
 					<Select.Content color="gray" variant="solid">
 						{
 							genre.map((genre) => 
-								<Select.Item value={genre} >
+								<Select.Item key={genre} value={genre} >
 									{genre}
 								</Select.Item>
 							)

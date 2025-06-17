@@ -1,6 +1,7 @@
 import { ExitIcon } from "@radix-ui/react-icons";
 import { Flex, Avatar } from "@radix-ui/themes";
 import { BrowserRouter, NavLink, Route, Routes } from "react-router";
+import FavoritesPage from "./favorites/FavoitesPage";
 import HomePage from "./home/HomePage";
 import MovieRegister from './register/MovieRegister'
 import MovieUpdate from './register/UpdateMovie'
@@ -53,6 +54,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/add-movie" element={<MovieRegister />} />
           <Route path="/update-movie/:id" element={<MovieUpdate />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
         </Routes>
       </div>
     </BrowserRouter>
