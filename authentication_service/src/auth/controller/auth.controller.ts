@@ -23,12 +23,12 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'auth_logout' })
-  async logout(@Payload() userId: string) {
-    return this.authService.logout(userId);
+  async logout(@Payload() payload: { userId: string }) {
+    return this.authService.logout(payload.userId);
   }
 
   @MessagePattern({ cmd: 'auth_refresh_tokens' })
-  async refreshTokens(@Payload() payload: { userId: string, refreshToken: string }): Promise<LoginResponse> {
-    return this.authService.refreshTokens(payload.userId, payload.refreshToken);
+  async refreshTokens(@Payload() payload: { refreshToken: string }) {
+    return this.authService.refreshTokens(payload);
   }
 }

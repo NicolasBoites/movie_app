@@ -107,20 +107,34 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(
-    userId: string,
-    refreshToken: string,
-  ): Promise<LoginResponse> {
+async refreshTokens(payloadFromGateway: { refreshToken: string }): Promise<LoginResponse> {
+    const refreshToken = payloadFromGateway.refreshToken;
+
+    let decoded: { sub: string; username: string };
+    try {
+      decoded = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
+      });
+    } catch (e) {
+      throw new ForbiddenException('Invalid or expired refresh token');
+    }
+
+    const userId = decoded.sub;
+    const userEmail = decoded.username;
+
     const user = await this.userService.findByIdInternal(userId);
 
-    if (!user || !user.refreshToken)
-      throw new ForbiddenException('Access Denied');
+    if (!user || !user.refreshToken) {
+      throw new ForbiddenException('Access Denied: User or refresh token not found');
+    }
 
     const refreshTokenMatches = await argon2.verify(
       user.refreshToken,
       refreshToken,
     );
-    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches) {
+      throw new ForbiddenException('Access Denied.');
+    }
 
     const tokens = await this.getTokens(user._id.toString(), user.email);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);

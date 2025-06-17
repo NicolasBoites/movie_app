@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { firstValueFrom, TimeoutError } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
 import { MicroserviceErrorResponse } from '../../interfaces/microservice-error.interface';
 
 @Injectable()
@@ -29,7 +29,16 @@ export class ProxyService {
 
       return await firstValueFrom(
         client.send(pattern, payload).pipe(
+          timeout(10000),
           catchError(error => {
+
+            if (error instanceof TimeoutError) {
+              console.error(`Microservice ${serviceName} timed out after 5s:`, error.message);
+              throw new HttpException(
+                `Service unavailable: ${serviceName} did not respond in time`,
+                HttpStatus.GATEWAY_TIMEOUT // 504 Gateway Timeout
+              );
+            }
             if (error instanceof RpcException) {
               const rpcError = error.getError();
 
@@ -41,6 +50,22 @@ export class ProxyService {
                 throw new HttpException('Unhandled microservice error: Unknown format', HttpStatus.INTERNAL_SERVER_ERROR);
               }
             }
+
+            const nodeError = error as NodeJS.ErrnoException;
+            if (nodeError.code === 'ECONNRESET') {
+              console.error(`Connection to ${serviceName} was reset (ECONNRESET). Microservice might have crashed or restarted:`, nodeError.message);
+              throw new HttpException(
+                `Service unavailable: ${serviceName} connection reset`,
+                HttpStatus.SERVICE_UNAVAILABLE // 503 Service Unavailable
+              );
+            } else if (nodeError.code === 'ECONNREFUSED' || nodeError.code === 'EADDRNOTAVAIL') {
+              console.error(`Could not connect to ${serviceName} (ECONNREFUSED/EADDRNOTAVAIL). Microservice might not be running or config is wrong:`, nodeError.message);
+              throw new HttpException(
+                `Service unavailable: Could not connect to ${serviceName}`,
+                HttpStatus.SERVICE_UNAVAILABLE
+              );
+            }
+
             console.error(`Unexpected error from microservice ${serviceName}:`, error);
             throw new HttpException(`Failed to communicate with ${serviceName}`, HttpStatus.INTERNAL_SERVER_ERROR);
           })

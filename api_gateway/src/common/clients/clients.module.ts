@@ -14,7 +14,7 @@ import { ProxyService } from './proxy/proxy.service';
           transport: Transport.TCP,
           options: {
             host: configService.get<string>('AUTH_USER_MS_HOST', 'localhost'),
-            port: configService.get<number>('AUTH_USER_MS_PORT', 3001),
+            port: configService.get<number>('AUTH_USER_MS_PORT', 4001),
           },
         }),
         inject: [ConfigService],
@@ -26,7 +26,7 @@ import { ProxyService } from './proxy/proxy.service';
           transport: Transport.TCP,
           options: {
             host: configService.get<string>('MOVIES_MS_HOST', 'localhost'),
-            port: configService.get<number>('MOVIES_MS_PORT', 3000),
+            port: configService.get<number>('MOVIES_MS_PORT', 4000),
           },
         }),
         inject: [ConfigService],
