@@ -33,15 +33,6 @@ pipeline {
           usernameVariable: 'AWS_ACCESS_KEY_ID',
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
-          script {
-            // Debug AWS credentials (safely)
-            echo "DEBUG: Verificando credenciales AWS..."
-            echo "AWS_ACCESS_KEY_ID length: ${env.AWS_ACCESS_KEY_ID?.length()}"
-            echo "AWS_SECRET_ACCESS_KEY length: ${env.AWS_SECRET_ACCESS_KEY?.length()}"
-            echo "AWS_ACCESS_KEY_ID starts with: ${env.AWS_ACCESS_KEY_ID?.take(4)}..."
-            echo "AWS_DEFAULT_REGION: ${env.AWS_DEFAULT_REGION}"
-          }
-          
           dir("${TF_DIR}") {
             bat '''
               echo Testing AWS credentials...
@@ -75,10 +66,6 @@ pipeline {
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           script {
-            // Debug AWS credentials again
-            echo "DEBUG: Deploy - AWS credentials check..."
-            echo "AWS_ACCESS_KEY_ID length: ${env.AWS_ACCESS_KEY_ID?.length()}"
-            echo "AWS_SECRET_ACCESS_KEY length: ${env.AWS_SECRET_ACCESS_KEY?.length()}"
             
             // Lee el bucket que Terraform acaba de crear
             def bucket
@@ -88,14 +75,13 @@ pipeline {
                 returnStdout: true
               ).trim()
             }
-            env.S3_BUCKET = bucket
-            echo "S3 Bucket: ${env.S3_BUCKET}"
+            echo "Bucket name: ${bucketName}"
             
             // Deploy to S3
             bat '''
               echo Deploying to S3...
               aws sts get-caller-identity
-              aws s3 sync frontend/dist/ s3://%S3_BUCKET%/ --delete
+              aws s3 sync frontend/dist/ s3://${bucketName}/ --delete
             '''
           }
         }
