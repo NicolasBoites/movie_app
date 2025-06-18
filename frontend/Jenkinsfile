@@ -76,7 +76,7 @@ pipeline {
               ).trim()
             }
             echo "Bucket name"
-            echo "${bucketName}"
+            echo "${bucket}"
             
             // Deploy to S3
             // bat '''
