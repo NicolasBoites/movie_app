@@ -3,7 +3,7 @@ import { Movie } from '../movies/Movie';
 
 import movies from './movies';
 const baseUrl = 'http://localhost:3000';
-const url = `${baseUrl}/movie`;
+const url = `${baseUrl}/movies`;
 
 function translateStatusToErrorMessage(status: number) {
     switch (status) {
@@ -17,6 +17,7 @@ function translateStatusToErrorMessage(status: number) {
 }
 
 function checkStatus(response: any) {
+    console.log(response)
     if (response.ok) {
         return response;
     } else {
@@ -33,9 +34,9 @@ function checkStatus(response: any) {
 }
 
 async function parseJSON(response: Response) {
-    const jsonResponse = await response.json();
+    //const jsonResponse = await response.json();
 
-    return jsonResponse.data;
+    return response.json();
 }
 
 // eslint-disable-next-line
@@ -52,6 +53,10 @@ function convertToMovieModels(data: any[]): Movie[] {
 
 function convertToMovieModel(item: any): Movie {
     return new Movie(item);
+}
+
+function getToken () {
+    return 'Bearer '+JSON.parse(window.localStorage.user).accessToken
 }
 
 const movieAPI = {
@@ -235,9 +240,14 @@ const movieAPI = {
             });
     },
 
-    find(id: string) {
-        return fetch(`${url}/${id}`)
-            .then(checkStatus)
+    find(id: string | undefined) {
+        return fetch(`${url}/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': getToken()
+            }
+        })
+            //.then(checkStatus)
             .then(parseJSON)
             .then(convertToMovieModel);
     },
@@ -247,11 +257,12 @@ const movieAPI = {
             method: 'POST',
             body: JSON.stringify(movie),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': getToken()
             }
         })
             // .then(delay(2000))
-            .then(checkStatus)
+            //.then(checkStatus)
             .then(parseJSON)
             .catch((error: TypeError) => {
                 console.log('log client error ' + error);
