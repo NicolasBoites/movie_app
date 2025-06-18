@@ -75,15 +75,13 @@ pipeline {
                 returnStdout: true
               ).trim()
             }
-            echo "Bucket name"
-            echo "${bucket}"
             
             // Deploy to S3
-            // bat '''
-            //   echo Deploying to S3...
-            //   aws sts get-caller-identity
-            //   aws s3 sync frontend/dist/ s3://${bucketName}/ --delete
-            // '''
+            bat '''
+              echo Deploying to S3...
+              aws sts get-caller-identity
+              aws s3 sync frontend/dist/ s3://${bucket}/ --delete
+            '''
           }
         }
       }
