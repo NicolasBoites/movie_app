@@ -1,7 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthDto } from './_dtos/auth.dto';
-import { CreateUserDto } from './_dtos/create_user.dto';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
 import { Public } from '../decorators/public.decorator';
@@ -14,7 +12,7 @@ export class AuthGatewayController {
   @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  async signup(@Body() dto: CreateUserDto) {
+  async signup(@Body() dto: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'auth_signup' },
       dto,
@@ -26,7 +24,7 @@ export class AuthGatewayController {
   @Public()
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  async signin(@Body() dto: AuthDto) {
+  async signin(@Body() dto: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'auth_signin' },
       dto,
