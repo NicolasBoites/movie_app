@@ -32,7 +32,16 @@ resource "aws_s3_bucket_website_configuration" "movie_app_frontend" {
   }
 
   error_document {
-    key = "index.html"
+    suffix = "index.html"
+  }
+
+  routing_rule {
+    condition {
+      http_error_code_returned_equals = "404"
+    }
+    redirect {
+      replace_key_with = "index.html"
+    }
   }
 }
 
