@@ -19,12 +19,29 @@ pipeline {
           usernameVariable: 'AWS_ACCESS_KEY_ID',
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
+          script {
+            // Debug AWS credentials (safely)
+            echo "🔍 Verificando credenciales AWS..."
+            echo "AWS_ACCESS_KEY_ID length: ${env.AWS_ACCESS_KEY_ID?.length()}"
+            echo "AWS_SECRET_ACCESS_KEY length: ${env.AWS_SECRET_ACCESS_KEY?.length()}"
+            echo "AWS_ACCESS_KEY_ID starts with: ${env.AWS_ACCESS_KEY_ID?.take(4)}..."
+            echo "AWS_DEFAULT_REGION: ${env.AWS_DEFAULT_REGION}"
+          }
+          
           dir("${TF_DIR}") {
             script {
               if (isUnix()) {
+                sh '''
+                  echo "🧪 Testing AWS credentials..."
+                  aws sts get-caller-identity || echo "❌ AWS auth failed"
+                '''
                 sh 'terraform init -input=false'
                 sh 'terraform apply -auto-approve -input=false'
               } else {
+                bat '''
+                  echo 🧪 Testing AWS credentials...
+                  aws sts get-caller-identity || echo ❌ AWS auth failed
+                '''
                 bat 'terraform init -input=false'
                 bat 'terraform apply -auto-approve -input=false'
               }
@@ -62,6 +79,11 @@ pipeline {
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           script {
+            // Debug AWS credentials again
+            echo "🔍 Deploy - AWS credentials check..."
+            echo "AWS_ACCESS_KEY_ID length: ${env.AWS_ACCESS_KEY_ID?.length()}"
+            echo "AWS_SECRET_ACCESS_KEY length: ${env.AWS_SECRET_ACCESS_KEY?.length()}"
+            
             // Lee el bucket que Terraform acaba de crear
             def bucket
             if (isUnix()) {
@@ -76,12 +98,21 @@ pipeline {
               ).trim()
             }
             env.S3_BUCKET = bucket
+            echo "📦 S3 Bucket: ${env.S3_BUCKET}"
             
             // Deploy to S3
             if (isUnix()) {
-              sh 'aws s3 sync build/ s3://$S3_BUCKET/ --delete'
+              sh '''
+                echo "🚀 Deploying to S3..."
+                aws sts get-caller-identity
+                aws s3 sync build/ s3://$S3_BUCKET/ --delete
+              '''
             } else {
-              bat 'aws s3 sync build/ s3://%S3_BUCKET%/ --delete'
+              bat '''
+                echo 🚀 Deploying to S3...
+                aws sts get-caller-identity
+                aws s3 sync build/ s3://%S3_BUCKET%/ --delete
+              '''
             }
           }
         }
