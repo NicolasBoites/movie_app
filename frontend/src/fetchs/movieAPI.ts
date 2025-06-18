@@ -3,7 +3,7 @@ import { Movie } from '../movies/Movie';
 
 import movies from './movies';
 const baseUrl = 'http://localhost:3000';
-const url = `${baseUrl}/movie`;
+const url = `${baseUrl}/movies`;
 
 function translateStatusToErrorMessage(status: number) {
     switch (status) {

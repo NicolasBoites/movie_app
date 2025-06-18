@@ -1,13 +1,13 @@
 interface IUser  {
     id?: string;
-    name: string;
+    username: string;
     email: string;
     password?: string;
 }
 
 class User {
 	id?:string='';
-	name: string='';
+	username: string='';
 	email: string='';
 	password?: string='';
 	accessToken?: string='';
