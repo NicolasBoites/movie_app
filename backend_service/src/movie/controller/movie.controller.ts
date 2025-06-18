@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ValidationPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MovieService } from '../service/movie.service';
 import { CreateMovieDto } from '../dto/create-movie.dto';
@@ -24,13 +24,13 @@ export class MovieController {
   }
 
   @MessagePattern({ cmd: 'create_movie' })
-  async create(@Payload() createDto: CreateMovieDto) {
+  async create(@Payload(ValidationPipe) createDto: CreateMovieDto) {
     const movie = await this.movieService.create(createDto);
     return { message: 'Movie created successfully', data: movie };
   }
 
   @MessagePattern({ cmd: 'update_movie' })
-  async update(@Payload() payload: { id: string; updateDto: UpdateMovieDto }) {
+  async update(@Payload(ValidationPipe) payload: { id: string; updateDto: UpdateMovieDto }) {
     const { id, updateDto } = payload;
     const movie = await this.movieService.update(id, updateDto);
     return { message: 'Movie updated successfully', data: movie };

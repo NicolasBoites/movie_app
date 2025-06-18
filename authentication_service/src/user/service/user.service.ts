@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from '../../common/_dtos/create_user.dto';
@@ -8,6 +8,7 @@ import { UserResponseDto } from '../../common/_dtos/user-response.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   private mapToUserResponseDto(user: User): UserResponseDto {
@@ -19,11 +20,15 @@ export class UserService {
     };
   }
 
-  //MODEL services
+  // MODEL services
   async createInternal(createUserDto: CreateUserDto): Promise<User> {
-    const createdUser = new this.userModel(createUserDto);
-    const savedUser = await createdUser.save();
-    return savedUser.toObject();
+    try {
+      const createdUser = new this.userModel(createUserDto);
+      const savedUser = await createdUser.save();
+      return savedUser;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findByEmailInternal(email: string): Promise<User | null> {
@@ -36,7 +41,7 @@ export class UserService {
     return user;
   }
 
-  //DTO services
+  // DTO services (Methods returning DTOs for external use)
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const newUser = await this.createInternal(createUserDto);
     return this.mapToUserResponseDto(newUser);
@@ -50,7 +55,7 @@ export class UserService {
   async findById(id: string): Promise<UserResponseDto> {
     const user = await this.findByIdInternal(id);
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
     return this.mapToUserResponseDto(user);
   }
@@ -64,19 +69,25 @@ export class UserService {
     const result = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
       new: true,
     }).lean().exec();
-    if (!result) throw new NotFoundException(`User with id ${id} not found`);
+    if (!result) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
     return true;
   }
 
   async remove(id: string): Promise<UserResponseDto> {
     const deleted = await this.userModel.findByIdAndDelete(id).lean().exec();
-    if (!deleted) throw new NotFoundException(`User with id ${id} not found`);
+    if (!deleted) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
     return this.mapToUserResponseDto(deleted);
   }
 
   async addFavoriteMovie(userId: string, movieId: string): Promise<boolean> {
     const user = await this.userModel.findById(userId).exec();
-    if (!user) throw new NotFoundException(`User with id ${userId} not found.`);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
     if (!user.favoriteMovieIds.includes(movieId)) {
       user.favoriteMovieIds.push(movieId);
       await user.save();
@@ -86,9 +97,14 @@ export class UserService {
 
   async removeFavoriteMovie(userId: string, movieId: string): Promise<boolean> {
     const user = await this.userModel.findById(userId).exec();
-    if (!user) throw new NotFoundException(`User with id ${userId} not found.`);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+    const initialLength = user.favoriteMovieIds.length;
     user.favoriteMovieIds = user.favoriteMovieIds.filter(id => id !== movieId);
-    await user.save();
+    if (user.favoriteMovieIds.length < initialLength) {
+        await user.save();
+    }
     return true;
   }
 }
