@@ -1,7 +1,7 @@
 import { Text, Flex, Box, Card, Grid } from '@radix-ui/themes'
 import { PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { useState } from 'react'
-import {movieAPI} from '../fetchs/movieAPI'
+import { movieAPI } from '../fetchs/movieAPI'
 import { useNavigate } from 'react-router'
 import { type IMovie, Movie } from '../interfaces/movies'
 import Form from './Form'
@@ -9,7 +9,7 @@ import Title from '../components/Title'
 import ButtonOptions from './ButtonOptions'
 
 export default function () {
-    const [movie, setMovie]: any = useState<IMovie>(new Movie());
+    const [movie, setMovie]: any = useState({});
     const [errors, setErrors] = useState<IMovie>(new Movie());
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -18,14 +18,14 @@ export default function () {
         setLoading(true);
 
         movieAPI.post(movie)
-        .then(() => {
-					navigate('/')
-        }).catch((err: any) => {
-					if(err.status<500)
-            setErrors(err.messages)
-        }).finally(() => {
-            setLoading(false)
-        })
+            .then(() => {
+                navigate('/')
+            }).catch((err: any) => {
+                if (err.status < 500)
+                    setErrors(err.messages)
+            }).finally(() => {
+                setLoading(false)
+            })
     }
 
     const getBack = () => {

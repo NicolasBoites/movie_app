@@ -17,6 +17,7 @@ function translateStatusToErrorMessage(status: number) {
 }
 
 function checkStatus(response: any) {
+    console.log(response)
     if (response.ok) {
         return response;
     } else {
@@ -33,9 +34,9 @@ function checkStatus(response: any) {
 }
 
 async function parseJSON(response: Response) {
-    const jsonResponse = await response.json();
+    //const jsonResponse = await response.json();
 
-    return jsonResponse.data;
+    return response.json();
 }
 
 // eslint-disable-next-line
@@ -247,11 +248,12 @@ const movieAPI = {
             method: 'POST',
             body: JSON.stringify(movie),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+JSON.parse(window.localStorage.user).accessToken
             }
         })
             // .then(delay(2000))
-            .then(checkStatus)
+            //.then(checkStatus)
             .then(parseJSON)
             .catch((error: TypeError) => {
                 console.log('log client error ' + error);

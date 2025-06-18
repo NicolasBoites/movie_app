@@ -59,10 +59,10 @@ export default function Register() {
             <TextField.Root name="email" size="3" onChange={addValues} placeholder="Enter your email" radius="none" />
             {errors.email && <Text size="2" color="red">{errors.email}</Text>}
             <Text size="2">Password</Text>
-            <TextField.Root name="password" size="3" onChange={addValues} placeholder="Create a password" radius="none" />
+            <TextField.Root type="password" name="password" size="3" onChange={addValues} placeholder="Create a password" radius="none" />
             {errors.password && <Text size="2" color="red">{errors.password}</Text>}
             <Text size="2">Comfirm your password</Text>
-            <TextField.Root name="confirm" size="3" onChange={addValues} placeholder="Comfirm your password" radius="none" />
+            <TextField.Root type="password" name="confirm" size="3" onChange={addValues} placeholder="Comfirm your password" radius="none" />
             {errors.confirm && <Text size="2" color="red">{errors.confirm}</Text>}
             <Text size="2" align="center">
                 <Flex gap="2">
