@@ -75,6 +75,8 @@ pipeline {
                 returnStdout: true
               ).trim()
             }
+
+            echo "Bucket name: ${bucket}"
             
             // Deploy to S3
             bat """
