@@ -35,8 +35,6 @@ pipeline {
         ]]) {
           dir("${TF_DIR}") {
             bat '''
-              echo Testing AWS credentials...
-              aws sts get-caller-identity || echo ERROR: AWS auth failed
               terraform init -input=false
               terraform apply -auto-approve -input=false
             '''
@@ -49,10 +47,12 @@ pipeline {
       tools { nodejs 'node20' }            // Define tu tool en "Global Tool Configuration"
       steps {
         dir('frontend') {
-          bat '''
-            npm ci
-            npm run build
-          '''
+          // Instala todo, incluyendo devDependencies
+          bat 'npm ci --include=dev'
+          // Corre el build y muestra todo el log
+          bat 'npm run build'
+          // Lista la carpeta para confirmar si se creó dist
+          bat 'dir'
         }
       }
     }
@@ -79,7 +79,6 @@ pipeline {
             // Deploy to S3
             bat '''
               echo Deploying to S3...
-              aws sts get-caller-identity
               aws s3 sync frontend/dist/ s3://${bucket}/ --delete
             '''
           }
