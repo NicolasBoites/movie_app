@@ -23,11 +23,12 @@ pipeline {
             script {
               if (isUnix()) {
                 sh 'terraform init -input=false'
+                sh 'terraform apply -auto-approve -input=false'
               } else {
                 bat 'terraform init -input=false'
+                bat 'terraform apply -auto-approve -input=false'
               }
             }
-            sh 'terraform apply -auto-approve -input=false'
           }
         }
       }
@@ -36,10 +37,19 @@ pipeline {
     stage('Build React') {
       tools { nodejs 'node18' }            // Define tu tool en "Global Tool Configuration"
       steps {
-        sh '''
-          npm ci
-          npm run build
-        '''
+        script {
+          if (isUnix()) {
+            sh '''
+              npm ci
+              npm run build
+            '''
+          } else {
+            bat '''
+              npm ci
+              npm run build
+            '''
+          }
+        }
       }
     }
 
@@ -53,15 +63,27 @@ pipeline {
         ]]) {
           script {
             // Lee el bucket que Terraform acaba de crear
-            def bucket = sh(
-              script: "terraform -chdir=${TF_DIR} output -raw bucket_name",
-              returnStdout: true
-            ).trim()
+            def bucket
+            if (isUnix()) {
+              bucket = sh(
+                script: "terraform -chdir=${TF_DIR} output -raw bucket_name",
+                returnStdout: true
+              ).trim()
+            } else {
+              bucket = bat(
+                script: "terraform -chdir=${TF_DIR} output -raw bucket_name",
+                returnStdout: true
+              ).trim()
+            }
             env.S3_BUCKET = bucket
+            
+            // Deploy to S3
+            if (isUnix()) {
+              sh 'aws s3 sync build/ s3://$S3_BUCKET/ --delete'
+            } else {
+              bat 'aws s3 sync build/ s3://%S3_BUCKET%/ --delete'
+            }
           }
-          sh '''
-            aws s3 sync build/ s3://$S3_BUCKET/ --delete
-          '''
         }
       }
     }
