@@ -3,8 +3,6 @@ import { Controller, Get, Post, Patch, Delete, Body, Param, Req, HttpStatus, Use
 import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
-import { CreateUserDto } from '../../../authentication_service/src/common/_dtos/create_user.dto';
-import { UpdateUserDto } from '../../../authentication_service/src/common/_dtos/update_user.dto';
 import { ObjectIdValidationPipe } from '../common/pipes/object-id-validation.pipe';
 
 @ApiTags('Users Gateway')
@@ -14,7 +12,7 @@ export class UsersGatewayController {
   constructor(private readonly proxyService: ProxyService) {}
 
   @Post()
-  async createUser(@Body() body: CreateUserDto, @Req() req: any) {
+  async createUser(@Body() body: any, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'create_user' },
       { createUserDto: body, userId: req.user.sub },
@@ -46,7 +44,7 @@ export class UsersGatewayController {
   @Patch(':id')
   async updateUser(
     @Param('id', ObjectIdValidationPipe) id: string,
-    @Body() body: UpdateUserDto,
+    @Body() body: any,
     @Req() req: any,
   ) {
     return this.proxyService.sendMicroserviceMessage(

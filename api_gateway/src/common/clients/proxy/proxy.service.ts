@@ -31,63 +31,71 @@ export class ProxyService {
         client.send(pattern, payload).pipe(
           timeout(10000),
           catchError(error => {
+            console.error(`[ProxyService] Error caught from ${serviceName}:`, error);
 
             if (error instanceof TimeoutError) {
-              console.error(`Microservice ${serviceName} timed out after 5s:`, error.message);
               throw new HttpException(
                 `Service unavailable: ${serviceName} did not respond in time`,
-                HttpStatus.GATEWAY_TIMEOUT // 504 Gateway Timeout
-              );
-            }
-            if (error instanceof RpcException) {
-              const rpcError = error.getError();
-
-              if (this.isMicroserviceErrorResponse(rpcError)) {
-                console.error(`Received RpcException from ${serviceName}:`, rpcError);
-                throw new HttpException(rpcError.message, rpcError.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
-              } else {
-                console.error(`Received RpcException from ${serviceName} with unexpected format:`, rpcError);
-                throw new HttpException('Unhandled microservice error: Unknown format', HttpStatus.INTERNAL_SERVER_ERROR);
-              }
-            }
-
-            const nodeError = error as NodeJS.ErrnoException;
-            if (nodeError.code === 'ECONNRESET') {
-              console.error(`Connection to ${serviceName} was reset (ECONNRESET). Microservice might have crashed or restarted:`, nodeError.message);
-              throw new HttpException(
-                `Service unavailable: ${serviceName} connection reset`,
-                HttpStatus.SERVICE_UNAVAILABLE // 503 Service Unavailable
-              );
-            } else if (nodeError.code === 'ECONNREFUSED' || nodeError.code === 'EADDRNOTAVAIL') {
-              console.error(`Could not connect to ${serviceName} (ECONNREFUSED/EADDRNOTAVAIL). Microservice might not be running or config is wrong:`, nodeError.message);
-              throw new HttpException(
-                `Service unavailable: Could not connect to ${serviceName}`,
-                HttpStatus.SERVICE_UNAVAILABLE
+                HttpStatus.GATEWAY_TIMEOUT
               );
             }
 
-            console.error(`Unexpected error from microservice ${serviceName}:`, error);
-            throw new HttpException(`Failed to communicate with ${serviceName}`, HttpStatus.INTERNAL_SERVER_ERROR);
+            let finalErrorData: { statusCode: number, message: string | string[], error: string } = {
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'Unexpected microservice error',
+                error: 'MicroserviceError'
+            };
+
+            const rawErrorContent = (error instanceof RpcException) ? error.getError() : error;
+
+            if (typeof rawErrorContent === 'object' && rawErrorContent !== null && 'error' in rawErrorContent && typeof rawErrorContent.error === 'object') {
+                const nestedError = rawErrorContent.error;
+                if (this.isMicroserviceErrorResponse(nestedError)) {
+                  finalErrorData.statusCode = nestedError.statusCode;
+                  finalErrorData.message = nestedError.message;
+                  finalErrorData.error = nestedError.error;
+                } else {
+                  console.error(`[ProxyService] Nested error from ${serviceName} with unexpected format:`, nestedError);
+                  finalErrorData.message = `Nested microservice error with unexpected format: ${JSON.stringify(nestedError)}`;
+                }
+            } else if (this.isMicroserviceErrorResponse(rawErrorContent)) {
+                finalErrorData.statusCode = rawErrorContent.statusCode;
+                finalErrorData.message = rawErrorContent.message;
+                finalErrorData.error = rawErrorContent.error;
+            } else {
+                console.error(`[ProxyService] Completely unexpected error format from ${serviceName}:`, rawErrorContent);
+                finalErrorData.message = `Microservice error with unexpected format: ${JSON.stringify(rawErrorContent)}`;
+                finalErrorData.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+            throw new HttpException(
+              {
+                statusCode: finalErrorData.statusCode,
+                message: finalErrorData.message,
+                error: finalErrorData.error,
+              },
+              finalErrorData.statusCode
+            );
           })
         )
       );
     } catch (error) {
-      console.error(`Error sending message to microservice ${serviceName}:`, error);
       if (error instanceof HttpException) {
-        throw error;
+        throw error; // Propagate HttpException so the global filter can catch it
       }
-      throw new HttpException('Internal server error during microservice communication', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error(`[ProxyService] Critical error sending message to ${serviceName} (outside pipe):`, error);
+      throw new HttpException(`Critical communication failure with ${serviceName}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  private isMicroserviceErrorResponse(error: unknown): error is MicroserviceErrorResponse {
+  // Validator for the microservice error structure
+  private isMicroserviceErrorResponse(error: any): error is MicroserviceErrorResponse {
     return (
       typeof error === 'object' &&
       error !== null &&
-      'statusCode' in error &&
-      typeof (error as any).statusCode === 'number' &&
-      'message' in error &&
-      (typeof (error as any).message === 'string' || Array.isArray((error as any).message))
+      typeof error.statusCode === 'number' &&
+      (typeof error.message === 'string' || Array.isArray(error.message)) &&
+      typeof error.error === 'string'
     );
   }
 }

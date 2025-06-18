@@ -5,15 +5,23 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { AllExceptionsFilter } from './common/filters/rpc-exception.filter';
+import * as mongoose from 'mongoose';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  
+  const app = await NestFactory.create(AppModule, {
+    //logger: ['log', 'error', 'warn'], // Muestra solo logs, errores y advertencias
+    logger: ['log', 'error', 'warn', 'debug'],
+  });
   const configService = app.get(ConfigService);
 
-  const tcpPort = configService.get<number>('PORT', 3001);
+  const tcpPort = configService.get<number>('PORT');
   const httpPort = configService.get<number>('HTTP_PORT', 3009);
-  const tcpHost = configService.get<string>('HOST', 'localhost');
+  const tcpHost = configService.get<string>('HOST', '0.0.0.0');
+
+  if (!tcpPort) {
+    throw new Error('PORT environment variable not set or not loaded for TCP microservice.');
+  }
 
   const config = new DocumentBuilder()
     .setTitle('Auth/User Microservice API')
@@ -29,8 +37,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true,
   }));
-
-  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
