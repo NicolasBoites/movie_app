@@ -4,7 +4,6 @@ pipeline {
   environment {
     AWS_DEFAULT_REGION = 'us-east-1'
     TF_DIR            = 'frontend/infra'
-    PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
   }
 
   stages {
@@ -13,20 +12,17 @@ pipeline {
     }
 
     stage('Setup AWS CLI Path') {
+      when { not { isUnix() } }
       steps {
         script {
-          if (isUnix()) {
-            sh 'echo "AWS CLI setup for Unix not needed"'
-          } else {
-            bat '''
-              echo === FIXING AWS CLI PATH ===
-              echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
-              set PATH=%PATH%;C:\\Program Files\\Amazon\\AWSCLIV2
-              echo Testing AWS CLI:
-              aws --version
-            '''
-          }
+          env.PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
         }
+        bat '''
+          echo === FIXING AWS CLI PATH ===
+          echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+          echo Testing AWS CLI:
+          aws --version
+        '''
       }
     }
 
@@ -48,23 +44,12 @@ pipeline {
           }
           
           dir("${TF_DIR}") {
-            script {
-              if (isUnix()) {
-                sh '''
-                  echo "Testing AWS credentials..."
-                  aws sts get-caller-identity || echo "ERROR: AWS auth failed"
-                '''
-                sh 'terraform init -input=false'
-                sh 'terraform apply -auto-approve -input=false'
-              } else {
-                bat '''
-                  echo Testing AWS credentials...
-                  aws sts get-caller-identity || echo ERROR: AWS auth failed
-                '''
-                bat 'terraform init -input=false'
-                bat 'terraform apply -auto-approve -input=false'
-              }
-            }
+            bat '''
+              echo Testing AWS credentials...
+              aws sts get-caller-identity || echo ERROR: AWS auth failed
+              terraform init -input=false
+              terraform apply -auto-approve -input=false
+            '''
           }
         }
       }
@@ -74,19 +59,10 @@ pipeline {
       tools { nodejs 'node18' }            // Define tu tool en "Global Tool Configuration"
       steps {
         dir('frontend') {
-          script {
-            if (isUnix()) {
-              sh '''
-                npm ci
-                npm run build
-              '''
-            } else {
-              bat '''
-                npm ci
-                npm run build
-              '''
-            }
-          }
+          bat '''
+            npm ci
+            npm run build
+          '''
         }
       }
     }
@@ -108,35 +84,20 @@ pipeline {
             // Lee el bucket que Terraform acaba de crear
             def bucket
             dir("${TF_DIR}") {
-              if (isUnix()) {
-                bucket = sh(
-                  script: "terraform output -raw bucket_name",
-                  returnStdout: true
-                ).trim()
-              } else {
-                bucket = bat(
-                  script: "terraform output -raw bucket_name",
-                  returnStdout: true
-                ).trim()
-              }
+              bucket = bat(
+                script: "terraform output -raw bucket_name",
+                returnStdout: true
+              ).trim()
             }
             env.S3_BUCKET = bucket
             echo "S3 Bucket: ${env.S3_BUCKET}"
             
             // Deploy to S3
-            if (isUnix()) {
-              sh '''
-                echo "Deploying to S3..."
-                aws sts get-caller-identity
-                aws s3 sync frontend/build/ s3://$S3_BUCKET/ --delete
-              '''
-            } else {
-              bat '''
-                echo Deploying to S3...
-                aws sts get-caller-identity
-                aws s3 sync frontend/build/ s3:/%%S3_BUCKET%%/ --delete
-              '''
-            }
+            bat '''
+              echo Deploying to S3...
+              aws sts get-caller-identity
+              aws s3 sync frontend/dist/ s3:/%%S3_BUCKET%%/ --delete
+            '''
           }
         }
       }
