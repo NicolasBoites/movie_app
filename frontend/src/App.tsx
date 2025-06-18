@@ -8,7 +8,7 @@ import MovieRegister from './register/MovieRegister'
 function App() {
   return (
     <BrowserRouter>
-      <header className="bg-white border-b border-slate-200 px-6 py-2">
+      <header className="bg-white border-b border-slate-200 px-6 py-2 fixed top-0 left-0 right-0 z-50 md:px-12 md:py-4">
         <div className="max-w-7x flex flex-row items-center justify-between">
           <div className="flex items-center space-x-4">
             <h3 className="mr-10 font-medium text-xl">Movie App</h3>
@@ -44,7 +44,7 @@ function App() {
         </div>
       </header>
 
-      <div className="px-6 py-12">
+      <div className="px-6 py-12 mt-8 md:mt-16">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/add-movie" element={<MovieRegister />} />

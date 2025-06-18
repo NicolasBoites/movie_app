@@ -54,16 +54,16 @@ function MoviesPage() {
       {/* Header */}
       <div className="flex flex-row items-center justify-between mb-12">
         <div>
-          <h2 className="text-slate-800 text-4xl font-medium my-4">
+          <h2 className="text-slate-800 text-2xl md:text-4xl font-medium my-4">
             Movies Collection
           </h2>
-          <p className="text-slate-500 font-medium text-lg">
+          <p className="text-slate-500 font-medium text-sm md:text-lg">
             Discover and manage films
           </p>
         </div>
         <button
           onClick={handleAddMovieClick}
-          className="flex items-center justify-between space-x-1 rounded-none px-6 py-3 bg-slate-900 font-medium uppercase hover:bg-slate-600 cursor-pointer text-slate-50 transition-colors duration-200"
+          className="flex items-center justify-between space-x-1 rounded-none text-xs md:text-base md:px-6 md:py-3 px-4 py-2 bg-slate-900 font-medium uppercase hover:bg-slate-600 cursor-pointer text-slate-50 transition-colors duration-200"
         >
           <PlusIcon className="!font-bold !mx-1" />
           Add Movie
