@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthDto } from './_dtos/auth.dto';
 import { CreateUserDto } from './_dtos/create_user.dto';
@@ -39,10 +39,14 @@ export class AuthGatewayController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessTokenGuard)
   async logout(@Req() req: any) {
+    if (!req.user || !req.user.sub) {
+      throw new BadRequestException('User information not found in token for logout.');
+    }
+
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'auth_logout' },
-      {},
-      req.user,
+      { userId: req.user.sub },
+      null,
       'AUTH_USER_SERVICE',
     );
   }
@@ -50,11 +54,21 @@ export class AuthGatewayController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshTokens(@Body('refreshToken') refreshToken: string, @Req() req: any) {
+  async refreshTokens(@Req() req: any) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new BadRequestException('Refresh token must be provided in Authorization header as Bearer token.');
+    }
+
+    const refreshToken = authHeader.split(' ')[1];
+
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token is missing from Authorization header.');
+    }
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'auth_refresh_tokens' },
       { refreshToken },
-      req.user,
+      null,
       'AUTH_USER_SERVICE',
     );
   }

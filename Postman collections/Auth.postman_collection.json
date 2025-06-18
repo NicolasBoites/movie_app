@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "5e98e677-73ec-49e9-8560-51d8fbe23ad3",
+		"name": "Auth-Movies",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45581042",
+		"_collection_link": "https://aleccoria.postman.co/workspace/87e26af2-93c6-41e5-8a7c-08fe8fc86ceb/collection/45581042-5e98e677-73ec-49e9-8560-51d8fbe23ad3?action=share&source=collection_link&creator=45581042"
+	},
+	"item": [
+		{
+			"name": "Sign up",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"Alec\",\r\n    \"email\": \"alec45@email.com\",\r\n    \"password\": \"password01_\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{env}}/auth/signup",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign in",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parsear la respuesta JSON\r",
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"// Verificar si la respuesta contiene los tokens y el ID\r",
+							"if (responseJson && responseJson.accessToken && responseJson.refreshToken && responseJson.id) {\r",
+							"    // Setear la variable de entorno 'accessToken'\r",
+							"    pm.environment.set(\"accessToken\", responseJson.accessToken);\r",
+							"    \r",
+							"    // Setear la variable de entorno 'refreshToken'\r",
+							"    pm.environment.set(\"refreshToken\", responseJson.refreshToken);\r",
+							"\r",
+							"    // Opcional: Setear el ID del usuario\r",
+							"    pm.environment.set(\"userId\", responseJson.id); // Puedes usar 'userId' o 'authUserId'\r",
+							"\r",
+							"    console.log(\"Tokens y userId seteados correctamente en el entorno.\");\r",
+							"} else {\r",
+							"    console.log(\"La respuesta no contiene todos los tokens o el ID esperados.\");\r",
+							"}\r",
+							"\r",
+							"// Para verificar que se setearon (opcional, para depuración)\r",
+							"console.log(\"accessToken del entorno:\", pm.environment.get(\"accessToken\"));\r",
+							"console.log(\"refreshToken del entorno:\", pm.environment.get(\"refreshToken\"));\r",
+							"console.log(\"userId del entorno:\", pm.environment.get(\"userId\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"alec45@email.com\",\r\n    \"password\": \"password01_\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{env}}/auth/signin",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete favorite movie",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/users/684fb5c19b9c79cad79422b9/favorites/100",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"users",
+						"684fb5c19b9c79cad79422b9",
+						"favorites",
+						"100"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add favorite movie",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/users/68519949c521630f12c26c84/favorites/a5555",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"users",
+						"68519949c521630f12c26c84",
+						"favorites",
+						"a5555"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get favorites movies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/users/68519949c521630f12c26c84",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"users",
+						"68519949c521630f12c26c84"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{refreshToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/auth/refresh",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"auth",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/auth/logout",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

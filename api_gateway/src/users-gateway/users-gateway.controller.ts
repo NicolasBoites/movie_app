@@ -67,7 +67,7 @@ export class UsersGatewayController {
     );
   }
 
-  @Post(':id/favorites/:movieId')
+  @Patch(':id/favorites/:movieId')
   async addFavoriteMovie(
     @Param('id', ObjectIdValidationPipe) id: string,
     @Param('movieId') movieId: string,
