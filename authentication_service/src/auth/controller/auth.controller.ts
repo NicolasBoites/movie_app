@@ -3,6 +3,7 @@ import {
   Controller,
   Logger,
   UseFilters,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthDto } from '../../common/_dtos/auth.dto';
 import { CreateUserDto } from '../../common/_dtos/create_user.dto';
@@ -17,12 +18,12 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @MessagePattern({ cmd: 'auth_signup' })
-  async signup(@Payload() createUserDto: CreateUserDto) {
+  async signup(@Payload(ValidationPipe) createUserDto: CreateUserDto) {
     return this.authService.signUp(createUserDto);
   }
 
   @MessagePattern({ cmd: 'auth_signin' })
-  async signin(@Payload() data: AuthDto) {
+  async signin(@Payload(ValidationPipe) data: AuthDto) {
     return this.authService.signIn(data);
   }
 

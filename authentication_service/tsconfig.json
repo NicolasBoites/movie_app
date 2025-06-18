@@ -17,5 +17,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],  // incluye tests si están en otra carpeta
+  "exclude": ["node_modules", "dist"]
 }
