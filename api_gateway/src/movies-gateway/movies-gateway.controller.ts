@@ -10,14 +10,10 @@ import {
   Put,
   Query,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
-import { CreateMovieDto } from '../../../backend_service/src/movie/dto/create-movie.dto';
-import { UpdateMovieDto } from '../../../backend_service/src/movie/dto/update-movie.dto';
-import { GetMoviesQueryDto } from './_dtos/getmovies-query.dto';
 
 @ApiTags('Movies Gateway')
 @Controller('movies')
@@ -27,7 +23,7 @@ export class MoviesGatewayController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query(ValidationPipe) query: GetMoviesQueryDto) {
+  async findAll(@Query() query: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'get_movies' },
       query,
@@ -50,7 +46,7 @@ export class MoviesGatewayController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body(ValidationPipe) createDto: CreateMovieDto) {
+  async create(@Body() createDto: any) {
     const movie = await this.proxyService.sendMicroserviceMessage(
       { cmd: 'create_movie' },
       createDto,
@@ -64,7 +60,7 @@ export class MoviesGatewayController {
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id') id: string,
-    @Body(ValidationPipe) updateDto: UpdateMovieDto,
+    @Body() updateDto: any,
   ) {
     const movie = await this.proxyService.sendMicroserviceMessage(
       { cmd: 'update_movie' },

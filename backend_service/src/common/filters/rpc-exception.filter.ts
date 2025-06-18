@@ -1,3 +1,4 @@
+// movies-backend/src/common/filters/rpc-exception.filter.ts
 import { Catch, RpcExceptionFilter, ArgumentsHost, Logger } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { RpcException } from '@nestjs/microservices';
@@ -45,7 +46,6 @@ export class AllExceptionsFilter implements RpcExceptionFilter<RpcException | Ht
       this.logger.error(`[RpcExceptionFilter] Caught unknown exception: ${JSON.stringify(errorResponse)}`);
     }
 
-    // Always re-throw as an RpcException so the ProxyService can catch it consistently.
     return throwError(() => new RpcException(errorResponse));
   }
 }

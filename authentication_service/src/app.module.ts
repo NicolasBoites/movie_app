@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Module, Logger } from '@nestjs/common';
+import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
+import * as mongoose from 'mongoose'; // Import mongoose to use mongoose.set()
 
 @Module({
   imports: [
@@ -25,11 +26,45 @@ import * as Joi from 'joi';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const uri = configService.get<string>('MONGODB_URI');
+        if (!uri) {
+          throw new Error('The MONGODB_URI environment variable is not defined.');
+        }
+
+        mongoose.set('debug', false);
+
+        Logger.log(`Attempting to connect to MongoDB...`, 'MongooseModule');
+        return {
+          uri: uri,
+        };
+      },
     }),
-  AuthModule,
-  UserModule],
+    AuthModule,
+    UserModule,
+  ],
+  providers: [
+    {
+      provide: 'MONGO_CONNECTION_MONITOR',
+      useFactory: (connection: mongoose.Connection) => {
+        const logger = new Logger('MongoDB Connection');
+
+        connection.on('connected', () => {
+          logger.log('Connection to MongoDB established successfully.');
+        });
+
+        connection.on('error', (err) => {
+          logger.error(`MongoDB connection error: ${err.message}`, err.stack);
+        });
+
+        connection.on('disconnected', () => {
+          logger.warn('Connection to MongoDB disconnected. Attempting to reconnect...');
+        });
+
+        return connection;
+      },
+      inject: [getConnectionToken()],
+    },
+  ],
 })
 export class AppModule {}
