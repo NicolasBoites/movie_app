@@ -68,19 +68,13 @@ pipeline {
           script {
             
             // Lee el bucket que Terraform acaba de crear
-            def rawBucketName
+            def bucketName
             dir("${TF_DIR}") {
-              rawBucketName = bat(
+              bucketName = bat(
                 script: "@echo off & terraform output -raw bucket_name",
                 returnStdout: true
               ).trim()
-            }
-            echo "Raw Bucket name: ${rawBucketName}"
-
-            def lines = rawBucketName.split('\r\n')
-            def bucketName = lines[-1]
-            echo "Bucket limpio: ${bucketName}" 
-
+            }  
             
             // Deploy to S3
             bat """
