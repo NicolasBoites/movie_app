@@ -4,6 +4,7 @@ pipeline {
   environment {
     AWS_DEFAULT_REGION = 'us-east-1'
     TF_DIR            = 'frontend/infra'
+    PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
   }
 
   stages {
@@ -20,15 +21,12 @@ pipeline {
             bat '''
               echo === FIXING AWS CLI PATH ===
               echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+              set PATH=%PATH%;C:\\Program Files\\Amazon\\AWSCLIV2
               echo Testing AWS CLI:
-              "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" --version
+              aws --version
             '''
           }
         }
-      }
-      
-      environment {
-        PATH = "${isUnix() ? env.PATH : env.PATH + ';C:\\\\Program Files\\\\Amazon\\\\AWSCLIV2'}"
       }
     }
 
