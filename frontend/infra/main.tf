@@ -18,21 +18,40 @@ resource "random_id" "suffix" {
 
 resource "aws_s3_bucket" "movie_app_frontend" {
   bucket = "movie-app-frontend-${random_id.suffix.hex}"
-  acl    = "public-read"
-
-  website {
-    index_document = "index.html"
-    error_document = "index.html"
-  }
 
   tags = {
     Project = "movie-app"
   }
 }
 
+resource "aws_s3_bucket_website_configuration" "movie_app_frontend" {
+  bucket = aws_s3_bucket.movie_app_frontend.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_acl" "movie_app_frontend" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.movie_app_frontend,
+    aws_s3_bucket_public_access_block.movie_app_frontend,
+  ]
+
+  bucket     = aws_s3_bucket.movie_app_frontend.id
+  acl        = "public-read"
+}
+
 resource "aws_s3_bucket_ownership_controls" "movie_app_frontend" {
   bucket = aws_s3_bucket.movie_app_frontend.id
-  rule   { object_ownership = "BucketOwnerPreferred" }
+  
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "movie_app_frontend" {
@@ -46,7 +65,10 @@ resource "aws_s3_bucket_public_access_block" "movie_app_frontend" {
 data "aws_iam_policy_document" "public_read" {
   statement {
     actions   = ["s3:GetObject"]
-    principals = [{ type = "*", identifiers = ["*"] }]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
     resources = ["${aws_s3_bucket.movie_app_frontend.arn}/*"]
     effect    = "Allow"
   }
@@ -59,4 +81,8 @@ resource "aws_s3_bucket_policy" "movie_app_frontend" {
 
 output "bucket_name" {
   value = aws_s3_bucket.movie_app_frontend.bucket
+}
+
+output "website_url" {
+  value = aws_s3_bucket_website_configuration.movie_app_frontend.website_endpoint
 }
