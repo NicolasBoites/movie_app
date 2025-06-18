@@ -4,7 +4,6 @@ pipeline {
   environment {
     AWS_DEFAULT_REGION = 'us-east-1'
     TF_DIR            = 'frontend/infra'
-    PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
   }
 
   stages {
@@ -21,12 +20,15 @@ pipeline {
             bat '''
               echo === FIXING AWS CLI PATH ===
               echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
-              set PATH=%PATH%;C:\\Program Files\\Amazon\\AWSCLIV2
               echo Testing AWS CLI:
-              aws --version
+              "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" --version
             '''
           }
         }
+      }
+      
+      environment {
+        PATH = "${isUnix() ? env.PATH : env.PATH + ';C:\\\\Program Files\\\\Amazon\\\\AWSCLIV2'}"
       }
     }
 
@@ -73,17 +75,19 @@ pipeline {
     stage('Build React') {
       tools { nodejs 'node18' }            // Define tu tool en "Global Tool Configuration"
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              npm ci
-              npm run build
-            '''
-          } else {
-            bat '''
-              npm ci
-              npm run build
-            '''
+        dir('frontend') {
+          script {
+            if (isUnix()) {
+              sh '''
+                npm ci
+                npm run build
+              '''
+            } else {
+              bat '''
+                npm ci
+                npm run build
+              '''
+            }
           }
         }
       }
@@ -105,16 +109,18 @@ pipeline {
             
             // Lee el bucket que Terraform acaba de crear
             def bucket
-            if (isUnix()) {
-              bucket = sh(
-                script: "terraform -chdir=${TF_DIR} output -raw bucket_name",
-                returnStdout: true
-              ).trim()
-            } else {
-              bucket = bat(
-                script: "terraform -chdir=${TF_DIR} output -raw bucket_name",
-                returnStdout: true
-              ).trim()
+            dir("${TF_DIR}") {
+              if (isUnix()) {
+                bucket = sh(
+                  script: "terraform output -raw bucket_name",
+                  returnStdout: true
+                ).trim()
+              } else {
+                bucket = bat(
+                  script: "terraform output -raw bucket_name",
+                  returnStdout: true
+                ).trim()
+              }
             }
             env.S3_BUCKET = bucket
             echo "S3 Bucket: ${env.S3_BUCKET}"
@@ -124,13 +130,13 @@ pipeline {
               sh '''
                 echo "Deploying to S3..."
                 aws sts get-caller-identity
-                aws s3 sync build/ s3://$S3_BUCKET/ --delete
+                aws s3 sync frontend/build/ s3://$S3_BUCKET/ --delete
               '''
             } else {
               bat '''
                 echo Deploying to S3...
                 aws sts get-caller-identity
-                aws s3 sync build/ s3:/%%S3_BUCKET%%/ --delete
+                aws s3 sync frontend/build/ s3:/%%S3_BUCKET%%/ --delete
               '''
             }
           }
@@ -140,7 +146,7 @@ pipeline {
   }
 
   post {
-    success { echo '✅ Build & deploy completados' }
-    failure { echo '❌ Algo falló; revisa los logs' }
+    success { echo 'SUCCESS: Build & deploy completados' }
+    failure { echo 'ERROR: Algo falló; revisa los logs' }
   }
 }
