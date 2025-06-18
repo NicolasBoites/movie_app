@@ -1,34 +1,30 @@
 import {
-  CaretLeftIcon,
-  CaretRightIcon,
   HeartFilledIcon,
   MagnifyingGlassIcon,
-  PlusIcon,
 } from "@radix-ui/react-icons";
 import {
-  Button,
   Container,
   Flex,
   Skeleton,
   Text,
-  TextField,
 } from "@radix-ui/themes";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import FavoriteList from "../favorites/FavoriteList";
 import { useFavorites } from "./favoritesHooks";
+// import { useMovies } from "../movies/moviesHooks";
 
 function FavoritesPage() {
   const {
-    data,
     isPending,
     error,
     isError,
     isFetching,
-    page,
-    setPage,
-    title,
+    favorites,
     setTitle,
+    hasNextPage,
+    hasPrevPage,
+    page,
+    setPage
   } = useFavorites();
 
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,16 +36,17 @@ function FavoritesPage() {
 
     debounceTimeout.current = setTimeout(() => {
       setTitle(query.trim());
-    }, 1200);
+    }, 800);
   };
 
-  const navigate = useNavigate();
-
-  const handleAddFavoriteClick = () => {
-    navigate("/add-movie"); // Replace with your route
+  // Función para cargar más (siguiente página)
+  const handleLoadMore = () => {
+    setPage(page + 1);
   };
-
-  const favorites = data;
+  
+  // Calcular valores para mostrar
+  const totalFavoritesShown = favorites.length; // Total de favoritos cargados hasta ahora
+  const currentPageItems = favorites.length;
 
   return (
     <div>
@@ -68,30 +65,40 @@ function FavoritesPage() {
       {favorites ? (
         <>
           {/* Search bar */}
-          <TextField.Root
-            value={title}
-            onChange={(e) => debounce(e.target.value)}
-            placeholder="Search favorites by title..."
-            className="text-xl !text-slate-500 !font-medium !border-0 !border-b !border-slate-300 !ring-0 !outline-0 !h-12 !flex !items-center"
-          >
-            <TextField.Slot></TextField.Slot>
-            <MagnifyingGlassIcon height="22" width="22" />
-          </TextField.Root>
+          <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
+            <input
+              onChange={(e: any) => debounce(e.target.value)}
+              placeholder="Search movies by title..."
+              className="w-full text-xl text-slate-500 font-medium border-0 ring-0 outline-0 bg-transparent"
+            />
+            <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
+          </div>
+
+          {isFetching && !isPending && <div>Loading...</div>}
 
           {/* Favorites */}
           <FavoriteList favorites={favorites} />
 
-          {/* Pagination */}
-
-          {/* Botón Siguiente */}
-          <div
-            className="border border-slate-300 py-8 flex justify-center items-center w-full">
-            <HeartFilledIcon className="text-slate-400" />
-            <Text className="text-slate-400 font-medium !mx-2">Showing {} of {} favorite movies</Text>
-            <Text as="div" 
-            // onclick
-             className="text-slate-900 font-medium">Load more</Text>
-          </div>
+          {/* Load More Section */}
+          {currentPageItems > 0 && (
+            <div className="border border-slate-300 py-8 flex justify-center items-center w-full gap-2">
+              <HeartFilledIcon className="text-slate-400" />
+              <Text className="text-slate-400 font-medium">
+                Showing {totalFavoritesShown} favorite movies
+                {hasNextPage ? " (more available)" : ""}
+              </Text>
+              {hasNextPage && (
+                <Text 
+                  as="div" 
+                  onClick={handleLoadMore}
+                  className="text-slate-900 font-medium cursor-pointer hover:underline ml-2"
+                  style={{ cursor: isFetching ? 'not-allowed' : 'pointer' }}
+                >
+                  {isFetching ? 'Loading...' : 'Load more'}
+                </Text>
+              )}
+            </div>
+          )}
         </>
       ) : isPending ? (
         // Loading Message

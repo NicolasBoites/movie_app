@@ -3,7 +3,6 @@ export class Favorite {
   title: string = '';
   rank: number = 0;
   genre: string = '';
-  // imageUrl: string = '';
 
   get isNew(): boolean {
     return this.id === undefined;
@@ -15,7 +14,6 @@ export class Favorite {
     if (initializer.title) this.title = initializer.title;
     if (initializer.rank) this.rank = initializer.rank;
     if (initializer.genre) this.genre = initializer.genre;
-    //   if (initializer.imageUrl) this.imageUrl = initializer.imageUrl;
 
   }
 }

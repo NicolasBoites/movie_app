@@ -1,9 +1,8 @@
 import {
   DotFilledIcon,
   HeartFilledIcon,
-  HeartIcon,
 } from "@radix-ui/react-icons";
-import { Card, Box, Inset, Strong, Text, Flex } from "@radix-ui/themes";
+import { Card, Box, Text, Flex } from "@radix-ui/themes";
 import { Favorite } from "./Favorite";
 
 interface FavoriteProps {
@@ -39,9 +38,7 @@ function FavoriteCard({ favorite }: FavoriteProps) {
                 >
                   Rank: #{favorite.rank}
                 </Text>
-                {/* <div className="!m-0"> */}
                 <DotFilledIcon color="gray" />
-                {/* </div> */}
                 <Text
                   as="div"
                   size="3"
