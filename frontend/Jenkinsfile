@@ -12,7 +12,6 @@ pipeline {
     }
 
     stage('Setup AWS CLI Path') {
-      when { not { isUnix() } }
       steps {
         script {
           env.PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
