@@ -5,41 +5,41 @@ import {
   PlusIcon,
 } from "@radix-ui/react-icons";
 import {
-  Button,
   Container,
   Flex,
   Skeleton,
   Text,
-  TextField,
 } from "@radix-ui/themes";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieList from "./MovieList";
 import { useMovies } from "./moviesHooks";
 
 function MoviesPage() {
   const {
-    data,
     isPending,
     error,
     isError,
     isFetching,
+    movies,
+    hasNextPage,
+    hasPrevPage,
     page,
     setPage,
-    title,
     setTitle,
   } = useMovies();
 
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debounce = (query: string) => {
+
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current); // limpia el timeout anterior
     }
 
     debounceTimeout.current = setTimeout(() => {
       setTitle(query.trim());
-    }, 1200);
+    }, 800);
   };
 
   const navigate = useNavigate();
@@ -48,7 +48,6 @@ function MoviesPage() {
     navigate("/add-movie"); // Replace with your route
   };
 
-  const movies = data;
 
   return (
     <div>
@@ -74,15 +73,16 @@ function MoviesPage() {
       {movies ? (
         <>
           {/* Search bar */}
-          <TextField.Root
-            value={title}
-            onChange={(e) => debounce(e.target.value)}
-            placeholder="Search movies by title..."
-            className="text-xl !text-slate-500 !font-medium !border-0 !border-b !border-slate-300 !ring-0 !outline-0 !h-12 !flex !items-center"
-          >
-            <TextField.Slot></TextField.Slot>
-            <MagnifyingGlassIcon height="22" width="22" />
-          </TextField.Root>
+          <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
+            <input
+              onChange={(e: any) => debounce(e.target.value)}
+              placeholder="Search movies by title..."
+              className="w-full text-xl text-slate-500 font-medium border-0 ring-0 outline-0 bg-transparent"
+            />
+            <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
+          </div>
+
+          {isFetching && !isPending && <div>Loading...</div>}
 
           {/* Movies */}
           <MovieList movies={movies} />
@@ -90,30 +90,26 @@ function MoviesPage() {
           {/* Pagination */}
           <div className="flex justify-center my-10">
             <div className="flex items-center gap-2">
-              {/* Botón Anterior */}
+                            {/* Botón Anterior */}
               <button
-                className="border border-slate-300 w-10 h-10 flex justify-center items-center"
+                className="w-10 h-10 flex justify-center items-center cursor-pointer"
                 onClick={() => setPage((old) => old - 1)}
-                disabled={page === 0}
+                disabled={!hasPrevPage}
               >
                 <CaretLeftIcon />
               </button>
 
               {/* Botones de Página */}
 
-              <button
-                onClick={() => setPage(page)}
-                className={"w-10 h-10 border bg-slate-900 text-white"}
-                disabled={page < 0}
-              >
-                {page + 1}
-              </button>
+              <span className="text-slate-600">
+                  Página {page + 1}
+                </span>
 
               {/* Botón Siguiente */}
               <button
-                className="border border-slate-300 w-10 h-10 flex justify-center items-center"
+                className="w-10 h-10 flex justify-center items-center cursor-pointer"
                 onClick={() => setPage((old) => old + 1)}
-                disabled={data.length !== 10}
+                disabled={!hasNextPage}
               >
                 <CaretRightIcon />
               </button>
