@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Movie } from './Movie';
 import MovieCard from './MovieCard';
 
@@ -8,15 +7,6 @@ interface MovieListProps {
 
 function MovieList({ movies }: MovieListProps) {
 
-    const [movieBeingEdited, setMovieBeingEdited] = useState({});
-
-    const handleEdit = (movie: Movie) => {
-        setMovieBeingEdited(movie);
-    }
-
-    const cancelEditing = () => {
-        setMovieBeingEdited({});
-    }
 
     return (
 
@@ -24,7 +14,7 @@ function MovieList({ movies }: MovieListProps) {
             {
                 movies.map((movie) => (
                     <div className="" key={movie.id}>
-                        <MovieCard movie={movie} onEdit={handleEdit} />
+                        <MovieCard movie={movie} />
                     </div>
                 ))
             }

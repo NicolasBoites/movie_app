@@ -22,7 +22,6 @@ function FavoritesPage() {
     favorites,
     setTitle,
     hasNextPage,
-    hasPrevPage,
     page,
     setPage
   } = useFavorites();

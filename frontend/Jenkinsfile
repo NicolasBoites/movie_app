@@ -1,0 +1,74 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_DEFAULT_REGION = 'us-east-1'
+    TF_DIR            = 'infra'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Terraform - init & apply') {
+      steps {
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'aws-access',      // → AccessKey + SecretKey en Jenkins
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          dir("${TF_DIR}") {
+            script {
+              if (isUnix()) {
+                sh 'terraform init -input=false'
+              } else {
+                bat 'terraform init -input=false'
+              }
+            }
+            sh 'terraform apply -auto-approve -input=false'
+          }
+        }
+      }
+    }
+
+    stage('Build React') {
+      tools { nodejs 'node18' }            // Define tu tool en "Global Tool Configuration"
+      steps {
+        sh '''
+          npm ci
+          npm run build
+        '''
+      }
+    }
+
+    stage('Deploy to S3') {
+      steps {
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'aws-access',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          script {
+            // Lee el bucket que Terraform acaba de crear
+            def bucket = sh(
+              script: "terraform -chdir=${TF_DIR} output -raw bucket_name",
+              returnStdout: true
+            ).trim()
+            env.S3_BUCKET = bucket
+          }
+          sh '''
+            aws s3 sync build/ s3://$S3_BUCKET/ --delete
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    success { echo '✅ Build & deploy completados' }
+    failure { echo '❌ Algo falló; revisa los logs' }
+  }
+}

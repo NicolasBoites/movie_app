@@ -1,5 +1,5 @@
 import { HeartIcon } from "@radix-ui/react-icons";
-import { Card, Box, Inset, Strong, Text } from "@radix-ui/themes";
+import { Card, Inset } from "@radix-ui/themes";
 import {Movie} from "./Movie";
 
 interface MovieProps {

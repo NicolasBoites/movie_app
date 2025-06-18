@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { movieAPI } from '../fetchs/movieAPI';
 import {
   useQuery,
@@ -7,6 +7,11 @@ import {
 export function useMovies() {
   const [page, setPage] = useState(0);
   const [title, setTitle] = useState('');
+
+  // Resetear página cuando cambia el término de búsqueda
+  useEffect(() => {
+    setPage(0);
+  }, [title]);
 
   const queryInfo = useQuery({
     queryKey: ['movies', page, title],
