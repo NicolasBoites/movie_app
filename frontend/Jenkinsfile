@@ -33,25 +33,31 @@ pipeline {
           } else {
             bat '''
               echo === AWS CLI VERIFICATION ===
-              where aws >nul 2>nul && (
+              where aws >nul 2>nul
+              if !errorlevel! equ 0 (
                 echo AWS CLI FOUND!
-                for /f "tokens=*" %%i in ('where aws') do echo Location: %%i
+                where aws
                 aws --version
-                echo PATH: %PATH%
-              ) || (
+              ) else (
                 echo AWS CLI NOT FOUND
-                echo PATH: %PATH%
-                echo Checking common locations:
-                if exist "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" (
-                  echo   - Found in: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
-                ) else (
-                  echo   - Not in: C:\\Program Files\\Amazon\\AWSCLIV2\\
-                )
-                if exist "C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe" (
-                  echo   - Found in: C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe
-                ) else (
-                  echo   - Not in: C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\
-                )
+              )
+              
+              echo.
+              echo PATH CHECK:
+              echo %PATH%
+              
+              echo.
+              echo CHECKING COMMON LOCATIONS:
+              if exist "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" (
+                echo   FOUND: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+              ) else (
+                echo   NOT FOUND: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+              )
+              
+              if exist "C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe" (
+                echo   FOUND: C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe
+              ) else (
+                echo   NOT FOUND: C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe
               )
             '''
           }
