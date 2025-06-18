@@ -77,10 +77,10 @@ pipeline {
             }
             
             // Deploy to S3
-            bat '''
+            bat """
               echo Deploying to S3...
               aws s3 sync frontend/dist/ s3://${bucket}/ --delete
-            '''
+            """
           }
         }
       }
