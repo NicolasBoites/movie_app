@@ -55,6 +55,10 @@ function convertToMovieModel(item: any): Movie {
     return new Movie(item);
 }
 
+function getToken () {
+    return 'Bearer '+JSON.parse(window.localStorage.user).accessToken
+}
+
 const movieAPI = {
     get(page = 1, limit = 10, name = null) {
 
@@ -237,7 +241,12 @@ const movieAPI = {
     },
 
     find(id: string | undefined) {
-        return fetch(`${url}/${id}`)
+        return fetch(`${url}/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': getToken()
+            }
+        })
             .then(checkStatus)
             .then(parseJSON)
             .then(convertToMovieModel);
@@ -249,7 +258,7 @@ const movieAPI = {
             body: JSON.stringify(movie),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer '+JSON.parse(window.localStorage.user).accessToken
+                'Authorization': getToken()
             }
         })
             // .then(delay(2000))

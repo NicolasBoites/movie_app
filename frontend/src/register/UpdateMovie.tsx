@@ -21,7 +21,7 @@ export default function UpdateMovie () {
 		movieAPI.find(params.id)
 		.then(res => setMovie(new Movie(res)))
 		.catch(() => {
-			navigate(-1)
+			//navigate(-1)
 		}).finally( () => {
 			setLoading(false)
 		})
