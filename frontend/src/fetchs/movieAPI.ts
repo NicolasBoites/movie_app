@@ -247,7 +247,7 @@ const movieAPI = {
                 'Authorization': getToken()
             }
         })
-            .then(checkStatus)
+            //.then(checkStatus)
             .then(parseJSON)
             .then(convertToMovieModel);
     },
