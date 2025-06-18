@@ -2,6 +2,7 @@ import { Button, Checkbox, Flex, Grid, Text, TextField } from "@radix-ui/themes"
 import Title from "../components/Title";
 import { SyntheticEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { userAPI } from "../fetchs/userAPI";
 
 export default function Register () {
     const [user, setUser]:any = useState({terms:false});
@@ -20,13 +21,27 @@ export default function Register () {
 
     const register = () => {
         setLoading(true)
-        setErrors({})
-        if(!user?.terms)
-            setErrors((old:any) => ({...old, terms: 'you must accept the terms'}))
-        setLoading(false)
+				setErrors({})
+
+				if(!user?.terms) {
+					setLoading(false)
+					return setErrors((old:any) => ({...old, terms: 'you must accept the terms'}))
+				}
+
+				userAPI.signUp(user)
+				.then(res => {
+					window.localStorage.key = res.accessToken;
+					window.localStorage.user= JSON.stringify(res);
+				}).catch(res => {
+					if(res.status<500)
+						setErrors(res.message)
+				}).finally(() => {
+					setLoading(false)
+				})
     }
 
     const getBack = () => {
+			if(!isLoading)
         navigate('/login')
     }
 

@@ -2,7 +2,7 @@ import { Button, Grid, Text, TextField } from "@radix-ui/themes";
 import Title from "../components/Title";
 import { Link } from "react-router-dom";
 import { SyntheticEvent, useState } from "react";
-import {userApi} from '../fetchs/userAPI.ts'
+import {userAPI} from '../fetchs/userAPI.ts'
 
 export default function Login () {
     const [user, setUser] = useState({})
@@ -16,13 +16,15 @@ export default function Login () {
 
     const logIn = () => {
         setLoading(true)
+				setErrors({email:'', password:''})
 
-				userApi.signIn(user)
+				userAPI.sigIn(user)
 				.then((res:any) => {
 					window.localStorage.key = res.accessToken;
-					window.localStorage.user= JSON.stringify(user);
+					window.localStorage.user= JSON.stringify(res);
 				}).catch((error: any) => {
-					setErrors(error.messages);
+					if(error.status<500)
+						setErrors(error.messages);
 				}).finally(()=> {
 					setLoading(false)
 				})

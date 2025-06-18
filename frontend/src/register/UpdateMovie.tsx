@@ -10,7 +10,7 @@ import ButtonOptions from './ButtonOptions'
 import {Pencil1Icon} from '@radix-ui/react-icons'
 
 export default function UpdateMovie () {
-	const [movie, setMovie] = useState<Movie>(new Movie({title: 'ehtnuo', rank:12, genre: 'Thriller'}));
+	const [movie, setMovie] = useState<Movie>(new Movie());
 	const [errors, setErrors] = useState<any>({});
 	const [isLoading, setLoading] = useState(true);
 	let params = useParams();
@@ -20,9 +20,8 @@ export default function UpdateMovie () {
 		setLoading(true)
 		movieAPI.find(params.id)
 		.then(res => setMovie(new Movie(res)))
-		.catch((error: Error) => {
-			console.log(error)
-			//navigate(-1)
+		.catch(() => {
+			navigate(-1)
 		}).finally( () => {
 			setLoading(false)
 		})
@@ -33,7 +32,10 @@ export default function UpdateMovie () {
 		movieAPI.put(movie).
 		then(() => {
 			navigate('/');
-		}).catch(error => setErrors(error.messages))
+		}).catch(error => {
+			if(error.status<500)
+				setErrors(error.messages)
+		})
 		.finally( () => {
 			setLoading(false)
 		})

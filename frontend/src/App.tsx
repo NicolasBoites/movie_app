@@ -1,5 +1,5 @@
 import { ExitIcon } from "@radix-ui/react-icons";
-import { Flex, Avatar } from "@radix-ui/themes";
+import { Avatar } from "@radix-ui/themes";
 import { BrowserRouter, NavLink, Route, Routes } from "react-router";
 import FavoritesPage from "./favorites/FavoitesPage";
 import HomePage from "./home/HomePage";

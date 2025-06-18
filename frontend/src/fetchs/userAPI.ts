@@ -3,14 +3,16 @@ const baseUrl = 'http://localhost:3000';
 const url = `${baseUrl}/auth`;
 
 function translateStatusToErrorMessage(status: number) {
+		let result = {status, message: ''}
     switch (status) {
         case 401:
-            return 'Please login again.';
+            result.message =  'Please login again.';
         case 403:
-            return 'You do not have permission to view the user(s).';
+            result.message = 'You do not have permission to view the user(s).';
         default:
-            return 'There was an error retrieving the user(s). Please try again.';
+					result.message = 'There was an error retrieving the user(s). Please try again.'
     }
+		return result;
 }
 
 function checkStatus(response: any) {
@@ -25,7 +27,7 @@ function checkStatus(response: any) {
         console.log(`log server http error: ${JSON.stringify(httpErrorInfo)}`);
 
         let errorMessage = translateStatusToErrorMessage(httpErrorInfo.status);
-        throw new Error(errorMessage);
+        Promise.reject(errorMessage);
     }
 }
 
@@ -75,7 +77,7 @@ const userAPI = {
     },
     sigIn(user:User) {
         return fetch(`${url}/signin`, {
-            method: 'PUT',
+            method: 'POST',
             body: JSON.stringify(user),
             headers: {
                 'Content-Type': 'application/json'
@@ -93,6 +95,7 @@ const userAPI = {
     },
     signUp(user:User) {
         return fetch(`${url}/signup`, {
+					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'
 					}

@@ -18,10 +18,10 @@ export default function () {
         setLoading(true);
 
         movieAPI.post(movie)
-        .then((res: any) => {
-            if (res.error)
-                navigate('/')
+        .then(() => {
+					navigate('/')
         }).catch((err: any) => {
+					if(err.status<500)
             setErrors(err.messages)
         }).finally(() => {
             setLoading(false)
