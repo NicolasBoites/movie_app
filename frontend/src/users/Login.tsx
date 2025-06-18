@@ -19,18 +19,18 @@ export default function Login () {
     }
 
     return <Grid columns="1" style={{justifyItems: 'center'}} >
-    <Title title="Welcome back" subTitle="Enter your credential to continue" backButton={false}/>
-    <Grid gap="4" width="100%" maxWidth="20rem" mt="4">
-        <Text  size="2" >Email address</Text>
-        <TextField.Root radius="none" name="email" size="3" onChange={addValues} placeholder="Enter your email" />
-        {errors.email && <Text size="2" color="red">{errors.email}</Text>}
-        <Text size="2">Password</Text>
-        <TextField.Root radius="none" name="password" size="3"  onChange={addValues} placeholder="Enter your password" />
-        {errors.password && <Text size="2" color="red">{errors.password}</Text>}
-        <Button radius="none" onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">SIGN IN</Button>
-    </Grid>
-    <Grid mt="5">
-        <Text>New to our platform? <strong><Link to="/register">Create an account</Link></strong></Text>
-    </Grid>
+        <Title title="Welcome back" subTitle="Enter your credential to continue" backButton={false}/>
+        <Grid gap="4" width="100%" maxWidth="20rem" mt="4">
+            <Text  size="2" >Email address</Text>
+            <TextField.Root radius="none" name="email" size="3" onChange={addValues} placeholder="Enter your email" />
+            {errors.email && <Text size="2" color="red">{errors.email}</Text>}
+            <Text size="2">Password</Text>
+            <TextField.Root radius="none" name="password" size="3"  onChange={addValues} placeholder="Enter your password" />
+            {errors.password && <Text size="2" color="red">{errors.password}</Text>}
+            <Button radius="none" onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">SIGN IN</Button>
+        </Grid>
+        <Grid mt="5">
+            <Text>New to our platform? <strong><Link to="/register">Create an account</Link></strong></Text>
+        </Grid>
     </Grid>
 }

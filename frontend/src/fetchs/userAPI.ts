@@ -1,7 +1,5 @@
 import { Movie } from '../movies/Movie';
-// import Movie from '../interfaces/movies';
-
-import movies from './movies';
+import user from './user';
 const baseUrl = 'http://localhost:3000';
 const url = `${baseUrl}/movie`;
 
@@ -45,8 +43,8 @@ function delay(ms: number) {
     };
 }
 
-function convertToMovieModels(data: any[]): Movie[] {
-    let movies: Movie[] = data.map(convertToMovieModel);
+function convertToUserModels(data: any[]): Movie[] {
+    let movies: User[] = data.map(convertToMovieModel);
     return movies;
 }
 
@@ -54,7 +52,7 @@ function convertToMovieModel(item: any): Movie {
     return new Movie(item);
 }
 
-const movieAPI = {
+const userAPI = {
     get(page = 1, limit = 10, name = null) {
 
         let movies = [
@@ -282,4 +280,4 @@ const movieAPI = {
     },
 };
 
-export { movieAPI };
+export { userAPI as movieAPI };

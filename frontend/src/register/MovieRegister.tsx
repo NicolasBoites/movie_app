@@ -1,9 +1,9 @@
 import { Text, Flex, Box, Card, Grid } from '@radix-ui/themes'
 import { PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { useState } from 'react'
-import MovieFetch from '../fetchs/movies'
+import {movieAPI} from '../fetchs/movieAPI'
 import { useNavigate } from 'react-router'
-import {type IMovie, Movie} from '../interfaces/movies'
+import { type IMovie, Movie } from '../interfaces/movies'
 import Form from './Form'
 import Title from '../components/Title'
 import ButtonOptions from './ButtonOptions'
@@ -17,19 +17,19 @@ export default function () {
     const saveMovie = () => {
         setLoading(true);
 
-        MovieFetch(movie).post
-            .then(res => {
-                if (res.error)
-                    navigate('/')
-            }).catch(async err => {
-                setErrors(await err)
-            }).finally(() => {
-                setLoading(false)
-            })
+        movieAPI.post(movie)
+        .then((res: any) => {
+            if (res.error)
+                navigate('/')
+        }).catch((err: any) => {
+            setErrors(err.messages)
+        }).finally(() => {
+            setLoading(false)
+        })
     }
 
     const getBack = () => {
-        if(!isLoading)
+        if (!isLoading)
             navigate(-1)
     }
 
@@ -37,7 +37,7 @@ export default function () {
         <Grid gap="5" align="center">
             <Title title="Add New movie" subTitle="Create new movie entry for your collection" back={getBack} />
             <Card>
-                <Form onChange={setMovie} errors={errors}/>
+                <Form onChange={setMovie} errors={errors} />
                 <ButtonOptions onAccept={saveMovie} onCancel={getBack} isLoading={isLoading}>
                     <PlusIcon />
                     Create movie
