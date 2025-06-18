@@ -4,6 +4,7 @@ pipeline {
   environment {
     AWS_DEFAULT_REGION = 'us-east-1'
     TF_DIR            = 'frontend/infra'
+    PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
   }
 
   stages {
@@ -11,54 +12,18 @@ pipeline {
       steps { checkout scm }
     }
 
-    stage('Check AWS CLI') {
+    stage('Setup AWS CLI Path') {
       steps {
         script {
           if (isUnix()) {
-            sh '''
-              echo "=== AWS CLI VERIFICATION ==="
-              if command -v aws &> /dev/null; then
-                echo "✅ AWS CLI FOUND!"
-                echo "Location: $(which aws)"
-                echo "Version: $(aws --version)"
-                echo "PATH: $PATH"
-              else
-                echo "❌ AWS CLI NOT FOUND"
-                echo "PATH: $PATH"
-                echo "Checking common locations:"
-                ls -la /usr/local/bin/aws 2>/dev/null || echo "  - Not in /usr/local/bin/"
-                ls -la /usr/bin/aws 2>/dev/null || echo "  - Not in /usr/bin/"
-              fi
-            '''
+            sh 'echo "AWS CLI setup for Unix not needed"'
           } else {
             bat '''
-              echo === AWS CLI VERIFICATION ===
-              where aws >nul 2>nul
-              if !errorlevel! equ 0 (
-                echo AWS CLI FOUND!
-                where aws
-                aws --version
-              ) else (
-                echo AWS CLI NOT FOUND
-              )
-              
-              echo.
-              echo PATH CHECK:
-              echo %PATH%
-              
-              echo.
-              echo CHECKING COMMON LOCATIONS:
-              if exist "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" (
-                echo   FOUND: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
-              ) else (
-                echo   NOT FOUND: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
-              )
-              
-              if exist "C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe" (
-                echo   FOUND: C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe
-              ) else (
-                echo   NOT FOUND: C:\\Program Files (x86)\\Amazon\\AWSCLIV2\\aws.exe
-              )
+              echo === FIXING AWS CLI PATH ===
+              echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+              set PATH=%PATH%;C:\\Program Files\\Amazon\\AWSCLIV2
+              echo Testing AWS CLI:
+              aws --version
             '''
           }
         }
