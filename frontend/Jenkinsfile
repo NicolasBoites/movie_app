@@ -46,7 +46,7 @@ pipeline {
     }
 
     stage('Build React') {
-      tools { nodejs 'node18' }            // Define tu tool en "Global Tool Configuration"
+      tools { nodejs 'node20' }            // Define tu tool en "Global Tool Configuration"
       steps {
         dir('frontend') {
           bat '''
