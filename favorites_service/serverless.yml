@@ -1,0 +1,31 @@
+service: favorites-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-1
+  environment:
+    NODE_ENV: production
+    MONGODB_URI: ${env:MONGODB_URI}
+    JWT_ACCESS_SECRET: ${env:JWT_ACCESS_SECRET}
+  timeout: 30
+  memorySize: 512
+
+functions:
+  app:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: ANY
+          path: /{proxy+}
+          cors: true
+      - http:
+          method: ANY
+          path: /
+          cors: true
+
+plugins:
+  - serverless-plugin-typescript 
