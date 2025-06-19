@@ -51,7 +51,7 @@ export default function UpdateMovie () {
 		<Title title="Update movie" subTitle={"Update the movie "+movie.title} back={Back}/>
 		<Card>
 			<Form data={movie} onChange={setMovie} errors={errors}/>
-			<ButtonOptions onSave={updateMovie} isLoading={isLoading}>
+			<ButtonOptions onAccept={updateMovie} isLoading={isLoading}>
 				<Pencil1Icon/>
 				Update movie
 			</ButtonOptions>
