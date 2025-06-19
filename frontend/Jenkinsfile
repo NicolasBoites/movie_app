@@ -16,23 +16,30 @@ pipeline {
         script {
           env.PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
         }
-        bat '''
-          echo === FIXING AWS CLI PATH ===
-          echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
-          echo Testing AWS CLI:
-          aws --version
-          echo.
-          echo === TESTING AWS CONNECTION ===
-          aws sts get-caller-identity && (
-            echo ✓ SUCCESS: AWS connection established
-            echo Connected as:
-            aws sts get-caller-identity --query "Arn" --output text
-          ) || (
-            echo ✗ ERROR: Unable to connect to AWS
-            echo Please check your credentials and try again
-          )
-          echo.
-        '''
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'aws-alec-access',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          bat '''
+            echo === FIXING AWS CLI PATH ===
+            echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+            echo Testing AWS CLI:
+            aws --version
+            echo.
+            echo === TESTING AWS CONNECTION ===
+            aws sts get-caller-identity && (
+              echo ✓ SUCCESS: AWS connection established
+              echo Connected as:
+              aws sts get-caller-identity --query "Arn" --output text
+            ) || (
+              echo ✗ ERROR: Unable to connect to AWS
+              echo Please check your credentials and try again
+            )
+            echo.
+          '''
+        }
       }
     }
 
