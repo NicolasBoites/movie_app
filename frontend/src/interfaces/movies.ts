@@ -1,6 +1,14 @@
-export default interface Movie {
+
+export interface IMovie{
 	id?: string,
 	title: string,
-	rank: Number,
+	rank?: Number,
 	genre: string
+}
+
+export class Movie {
+	id?: string ='';
+	title: string='';
+	rank?: Number;
+	genre: string='';
 }

@@ -15,6 +15,7 @@ function translateStatusToErrorMessage(status: number) {
 }
 
 function checkStatus(response: any) {
+    console.log(response)
     if (response.ok) {
         return response;
     } else {
@@ -43,9 +44,7 @@ async function reauthenticate() {
 }
 
 async function parseJSON(response: Response) {
-    const jsonResponse = await response.json();
-
-    return jsonResponse;
+    return response.json();
 }
 
 function convertToMovieModels(data: any[]): Movie[] {
@@ -103,7 +102,7 @@ const movieAPI = {
         );
     },
 
-    find(id: string) {
+    find(id: string | undefined) {
         return fetch(`${url}/${id}`, {
             headers: getAuthHeaders(),
         })

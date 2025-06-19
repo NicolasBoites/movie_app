@@ -25,7 +25,7 @@ export class UserController {
   }
 
   @MessagePattern({ cmd: 'update_user' })
-  async update(@Payload() payload: { id: string, updateUserDto: UpdateUserDto, userId?: string }): Promise<boolean> {
+  async update(@Payload(ValidationPipe) payload: { id: string, updateUserDto: UpdateUserDto, userId?: string }): Promise<boolean> {
     return this.userService.update(payload.id, payload.updateUserDto);
   }
 
