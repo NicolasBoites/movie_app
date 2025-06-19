@@ -21,6 +21,17 @@ pipeline {
           echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
           echo Testing AWS CLI:
           aws --version
+          echo.
+          echo === TESTING AWS CONNECTION ===
+          aws sts get-caller-identity && (
+            echo ✓ SUCCESS: AWS connection established
+            echo Connected as:
+            aws sts get-caller-identity --query "Arn" --output text
+          ) || (
+            echo ✗ ERROR: Unable to connect to AWS
+            echo Please check your credentials and try again
+          )
+          echo.
         '''
       }
     }
