@@ -20,7 +20,7 @@ class User {
 	constructor(initializer?: any) {
 			if (!initializer) return;
 			if (initializer.id) this.id = initializer.id;
-			if (initializer.name) this.name = initializer.name;
+			if (initializer.username) this.username = initializer.username;
 			if (initializer.email) this.email = initializer.email;
 			if (initializer.password) this.password = initializer.password;
 			if (initializer.accessToken) this.accessToken = initializer.accessToken;
@@ -29,4 +29,4 @@ class User {
 		}
 	}
 
-export {IUser, User}
+export {type IUser, User}
