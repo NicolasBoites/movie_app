@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Request, Response } from 'express';
@@ -16,7 +17,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
@@ -26,14 +26,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'string') {
+      if (exception instanceof BadRequestException && typeof exceptionResponse === 'object' && exceptionResponse !== null && Array.isArray((exceptionResponse as any).message)) {
+        message = (exceptionResponse as any).message;
+        errorName = (exceptionResponse as any).error || HttpStatus[status].toString();
+      } else if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
         errorName = HttpStatus[status].toString();
       } else if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         message = (exceptionResponse as any).message || message;
         errorName = (exceptionResponse as any).error || errorName;
       }
-      this.logger.error(`[HTTP Exception] ${status} - ${message}`);
+      this.logger.error(`[HTTP Exception] ${status} - ${JSON.stringify(message)}`);
 
     } else if (exception instanceof RpcException) {
       const rpcError = exception.getError();
@@ -43,7 +46,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         status = rpcError.statusCode;
         message = (rpcError as any).message || 'Microservice error';
         errorName = (rpcError as any).error || 'MicroserviceError';
-        this.logger.warn(`[RPC Exception] Converting to HTTP ${status}: ${message}`);
+        this.logger.warn(`[RPC Exception] Converting to HTTP ${status}: ${JSON.stringify(message)}`);
       } else {
         message = `Unexpected microservice error format: ${JSON.stringify(rpcError)}`;
         this.logger.error(`[RPC Exception] Unexpected RPC error format: ${JSON.stringify(rpcError)}`);
@@ -58,8 +61,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: status,
       message: message,
       error: errorName,
-      timestamp: new Date().toISOString(),
-      path: request.url,
     });
   }
 }
