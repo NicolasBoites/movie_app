@@ -15,5 +15,4 @@ export class CreateUserDto {
   // @MinLength(8)
   // @MaxLength(30)
   password: string;
-  refreshToken?: string;
 }
