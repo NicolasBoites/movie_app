@@ -14,7 +14,7 @@ export default function Form({ data = new Movie(), onChange, errors = {} }: Prop
 
 	const saveData = (event: SyntheticEvent) => {
 		const { name, value } = event.target as HTMLInputElement;
-		onChange((old: Movie) => ({ ...old, [name]: value }));
+		onChange((old: Movie) => ({ ...old, [name]: parseInt(value) || value }));
 	}
 
 	const selectGenre = (genre: string) => {
