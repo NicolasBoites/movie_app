@@ -3,11 +3,10 @@ import Title from "../components/Title";
 import { Link, useNavigate } from "react-router-dom";
 import { SyntheticEvent, useState } from "react";
 import { userAPI } from '../fetchs/userAPI.ts'
-import { User } from "../fetchs/user.ts";
 
 export default function Login() {
-    const [user, setUser] = useState(new User());
-    const [errors, setErrors] = useState({ password: '', email: '' });
+    const [user, setUser]:any = useState({email:'', password:''});
+    const [errors, setErrors]:any = useState({});
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -18,15 +17,15 @@ export default function Login() {
 
     const logIn = () => {
         setLoading(true)
-        setErrors({ email: '', password: '' })
+        setErrors({})
 
         userAPI.sigIn(user)
             .then((res: any) => {
                 window.localStorage.user = JSON.stringify(res);
                 navigate('/')
-            }).catch((error: any) => {
-                if (error.status < 500)
-                    setErrors(error.messages);
+            }).catch(  (error: any) => {
+                if (error.statusCode < 500)
+                    setErrors(error.message);
             }).finally(() => {
                 setLoading(false)
             })
@@ -37,10 +36,10 @@ export default function Login() {
         <Grid gap="4" width="100%" maxWidth="20rem" mt="4">
             <Text size="2" >Email address</Text>
             <TextField.Root radius="none" name="email" size="3" onChange={addValues} placeholder="Enter your email" />
-            {errors.email && <Text size="2" color="red">{errors.email}</Text>}
+            {errors.email && <Text as="span" size="2" color="red">{errors.email}</Text>}
             <Text size="2">Password</Text>
             <TextField.Root type="password" radius="none" name="password" size="3" onChange={addValues} placeholder="Enter your password" />
-            {errors.password && <Text size="2" color="red">{errors.password}</Text>}
+            {errors.password && <Text as="span" size="2" color="red">{errors.password}</Text>}
             <Button radius="none" onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">SIGN IN</Button>
         </Grid>
         <Grid mt="5">

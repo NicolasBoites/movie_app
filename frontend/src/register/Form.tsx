@@ -23,13 +23,13 @@ export default function Form({ data = new Movie(), onChange, errors = {} }: Prop
 
 	return <Grid gap="4" m="4">
 		<Text size="2">MOVIE TITLE</Text>
-		<TextField.Root defaultValue={data.title} name="title" color="gray" onChange={saveData} variant="surface" size="3" placeholder="Enter movie title..." />
+		<TextField.Root value={data.title} name="title" color="gray" onChange={saveData} variant="surface" size="3" placeholder="Enter movie title..." />
 		{errors.title && <Text color="red">{errors.title}</Text>}
 		<Text size="2">RANK</Text>
-		<TextField.Root defaultValue={data.rank} name="rank" color='gray' onChange={saveData} variant="surface" size="3" placeholder="Enter rank number..." />
+		<TextField.Root value={data.rank} name="rank" color='gray' onChange={saveData} variant="surface" size="3" placeholder="Enter rank number..." />
 		{errors.rank && <Text color="red">{errors.rank}</Text>}
 		<Text size="2">Genre</Text>
-		<Select.Root size="3" name="genre" onValueChange={selectGenre}  >
+		<Select.Root size="3" name="genre" onValueChange={selectGenre} value={data.genre} >
 			<Select.Trigger placeholder='Select genre...' color='gray' variant="surface" />
 			<Select.Content color="gray" variant="solid">
 				{

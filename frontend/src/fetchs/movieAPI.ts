@@ -1,8 +1,10 @@
 import { Movie } from '../movies/Movie';
 // import Movie from '../interfaces/movies';
+import * as Utils from './Utils'
 
 import movies from './movies';
 const baseUrl = 'http://localhost:3000';
+//const baseUrl = 'http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com';
 const url = `${baseUrl}/movies`;
 
 function translateStatusToErrorMessage(status: number) {
@@ -53,10 +55,6 @@ function convertToMovieModels(data: any[]): Movie[] {
 
 function convertToMovieModel(item: any): Movie {
     return new Movie(item);
-}
-
-function getToken () {
-    return 'Bearer '+JSON.parse(window.localStorage.user).accessToken
 }
 
 const movieAPI = {
@@ -226,7 +224,8 @@ const movieAPI = {
             method: 'PUT',
             body: JSON.stringify(movie),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+								'Authorization': Utils.getToken()
             }
         })
             // .then(delay(2000))
@@ -244,12 +243,12 @@ const movieAPI = {
         return fetch(`${url}/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': getToken()
+                'Authorization': Utils.getToken()
             }
         })
             //.then(checkStatus)
             .then(parseJSON)
-            .then(convertToMovieModel);
+            .then((data) => data.data);
     },
 
     post(movie: Movie) {
@@ -258,18 +257,13 @@ const movieAPI = {
             body: JSON.stringify(movie),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': getToken()
+                'Authorization': Utils.getToken()
             }
         })
             // .then(delay(2000))
             //.then(checkStatus)
-            .then(parseJSON)
-            .catch((error: TypeError) => {
-                console.log('log client error ' + error);
-                throw new Error(
-                    'There was an error updating the movie. Please try again.'
-                );
-            });
+            .then(Utils.parseJSON)
+						.catch(Utils.formatError(movie))
     },
 
     delete(movie: Movie) {

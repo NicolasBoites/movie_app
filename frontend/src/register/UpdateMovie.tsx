@@ -11,6 +11,7 @@ import {Pencil1Icon} from '@radix-ui/react-icons'
 
 export default function UpdateMovie () {
 	const [movie, setMovie] = useState<Movie>(new Movie());
+	const [title, setTitle] = useState('')
 	const [errors, setErrors] = useState<any>({});
 	const [isLoading, setLoading] = useState(true);
 	let params = useParams();
@@ -19,9 +20,13 @@ export default function UpdateMovie () {
 	useEffect(() => {
 		setLoading(true)
 		movieAPI.find(params.id)
-		.then(res => setMovie(new Movie(res)))
+		.then(res => {
+			setTitle(res.title)
+			console.log(res.data)
+			setMovie(res.data)
+		})
 		.catch(() => {
-			//navigate(-1)
+			navigate(-1)
 		}).finally( () => {
 			setLoading(false)
 		})
@@ -48,7 +53,7 @@ export default function UpdateMovie () {
 	
 	return  <Grid style={{justifyItems: 'center'}}>
 	<Grid gap="5" cols="1" align="center">
-		<Title title="Update movie" subTitle={"Update the movie "+movie.title} back={Back}/>
+		<Title title="Update movie" subTitle={"Update the movie "+title} back={Back}/>
 		<Card>
 			<Form data={movie} onChange={setMovie} errors={errors}/>
 			<ButtonOptions onAccept={updateMovie} isLoading={isLoading}>

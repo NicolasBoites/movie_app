@@ -1,6 +1,8 @@
 import { User } from './user';
 const baseUrl = 'http://localhost:3000';
+//const baseUrl = 'http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com';
 const url = `${baseUrl}/auth`;
+import * as Utils from './Utils'
 
 function translateStatusToErrorMessage(status: number) {
     let result = { status, message: '' }
@@ -15,25 +17,20 @@ function translateStatusToErrorMessage(status: number) {
     return result;
 }
 
-function checkStatus(response: any) {
+async function checkStatus(response: any) {
     if (response.ok) {
-        return response;
-    } else {
-        const httpErrorInfo = {
-            status: response.status,
-            statusText: response.statusText,
-            url: response.url,
-        };
-        console.log(`log server http error: ${JSON.stringify(httpErrorInfo)}`);
+        return response.json();
+    } 
 
-        let errorMessage = translateStatusToErrorMessage(httpErrorInfo.status);
-        Promise.reject(errorMessage);
-    }
-}
+		const httpErrorInfo = {
+				status: response.status,
+				statusText: response.statusText,
+				url: response.url,
+		};
+		console.log(`log server http error: ${JSON.stringify(httpErrorInfo)}`);
 
-async function parseJSON(response: Response) {
-
-    return response.json();
+		let errorMessage = translateStatusToErrorMessage(httpErrorInfo.status);
+		return Promise.reject(await response.json());
 }
 
 // eslint-disable-next-line
@@ -52,27 +49,16 @@ function convertToUserModel(item: any): User {
     return new User(item);
 }
 
-function getToken() {
-    return JSON.parse(window.localStorage.user).accessToken
-}
-
 const userAPI = {
     logOut() {
         return fetch(url + '/logout', {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + getToken()
+                'Authorization': 'Bearer ' + Utils.getToken()
             }
         })
             // .then(delay(2000))
-            .then(checkStatus)
-            .then(parseJSON)
-            .catch((error: TypeError) => {
-                console.log('log client error ' + error);
-                throw new Error(
-                    'There was an error retrieving the user. Please try again.'
-                );
-            });
+            .then(Utils.parseJSON)
     },
     sigIn(user: User) {
         return fetch(`${url}/signin`, {
@@ -83,14 +69,8 @@ const userAPI = {
             }
         })
             // .then(delay(2000))
-            .then(checkStatus)
-            .then(parseJSON)
-            .catch((error: TypeError) => {
-                console.log('log client error ' + error);
-                throw new Error(
-                    'There was an error updating the user. Please try again.'
-                );
-            });
+				.then(Utils.parseJSON)
+				.catch(Utils.formatError(user))
     },
     signUp(user: User) {
         return fetch(`${url}/signup`, {
@@ -99,8 +79,8 @@ const userAPI = {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(user)
-        }).then(checkStatus)
-            .then(parseJSON);
+        }).then(Utils.parseJSON)
+				.catch(Utils.formatError(user));
     },
 
 };
