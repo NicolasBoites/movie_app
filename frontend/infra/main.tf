@@ -17,7 +17,7 @@ resource "random_id" "suffix" {
 }
 
 resource "aws_s3_bucket" "movie_app_frontend" {
-  bucket = "movie-app-frontend-alec-${random_id.suffix.hex}"
+  bucket = "movie-app-frontend-${random_id.suffix.hex}"
 
   tags = {
     Project = "movie-app"

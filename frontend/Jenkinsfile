@@ -18,7 +18,7 @@ pipeline {
         }
         withCredentials([[
           $class: 'UsernamePasswordMultiBinding',
-          credentialsId: 'aws-alec-access',
+          credentialsId: 'aws-access',
           usernameVariable: 'AWS_ACCESS_KEY_ID',
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
@@ -47,7 +47,7 @@ pipeline {
       steps {
         withCredentials([[
           $class: 'UsernamePasswordMultiBinding',
-          credentialsId: 'aws-alec-access',      // → AccessKey + SecretKey en Jenkins
+          credentialsId: 'aws-access',      // → AccessKey + SecretKey en Jenkins
           usernameVariable: 'AWS_ACCESS_KEY_ID',
           passwordVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
