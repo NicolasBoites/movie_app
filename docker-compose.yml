@@ -12,7 +12,7 @@ services:
       - app-network
 
   authentication-microservice:
-    build: ./auth_service
+    build: ./authentication_service_service
     image: aleccoria34/authentication-microservice:latest
     container_name: authentication_service
     ports:
