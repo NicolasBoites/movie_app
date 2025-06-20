@@ -7,13 +7,12 @@ const parseJSON = async (response: Response) => {
 
 const formatError = (format:any) => (res:any) => {
 	let keys = Object.keys(format);
-	keys.push('user')
 	let errors = res.message;
 
 	res.message = keys.reduce((acc:any, el:string) => {
 		if(typeof errors ==='string' ){
 			if(errors.toLowerCase().includes(el))
-				acc[el=='user'?'email':el] = errors;
+				acc[el] = errors;
 			return acc;
 		}
 

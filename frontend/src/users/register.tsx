@@ -4,9 +4,21 @@ import { SyntheticEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userAPI } from "../fetchs/userAPI";
 
+class User {
+	username: string='';
+	email: string='';
+	password: string='';
+
+	constructor({username, email, password}: User) { 
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
+}
+
 export default function Register() {
-    const [user, setUser]: any = useState({ terms: false });
-    const [errors, setErrors]: any = useState({});
+    let [user, setUser]: any = useState({ terms: false });
+    let [errors, setErrors]: any = useState({terms: ''});
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -21,27 +33,34 @@ export default function Register() {
 
     const register = () => {
         setLoading(true)
-        setErrors({})
+				errors = {}
+				let {confirm, terms, ...data} = user
 
-        if (!user?.terms) {
+        if (!terms) {
             setLoading(false)
-            return setErrors((old: any) => ({ ...old, terms: 'you must accept the terms' }))
-        } else if (user.password!==user.confirm) {
-            console.log(user)
+						errors.terms = 'you must accept the terms';
+        } if (!user.password && user.password!==confirm) {
             setLoading(false)
-            return setErrors((old:any) => ({...old, confirm: "passwords doesn't match"}))
+            return errors.confirm = "passwords doesn't match";
         }
 
-        userAPI.signUp(user)
-        .then((res:any) => {
-            window.localStorage.user = JSON.stringify(res);
-            navigate('/')
-        }).catch((res:any) => {
-            if (res.status < 500)
-                setErrors(res.message)
-        }).finally(() => {
-            setLoading(false)
-        })
+
+				if (errors.confirm) {
+					userAPI.signUp(new User(data))
+					.then((res:any) => {
+						window.localStorage.user = JSON.stringify(res);
+						navigate('/')
+					}).catch((res:any) => {
+						if(res.statusCode < 500)
+								setErrors({...errors, ...res.message, })
+					}).finally(() => {
+							setLoading(false)
+					})
+					return;
+				}
+				
+				setErrors(errors);
+				setLoading(false);
     }
 
     const getBack = () => {
@@ -54,7 +73,7 @@ export default function Register() {
             <Title mb="4" title="Join us" subTitle="Create your account to get started" back={getBack} />
             <Text size="2" >User name</Text>
             <TextField.Root name="username" size="3" onChange={addValues} placeholder="Choose your username" radius="none" />
-            {errors.name && <Text size="2" color="red">{errors.name}</Text>}
+            {errors.username && <Text size="2" color="red">{errors.username}</Text>}
             <Text size="2" >Email address</Text>
             <TextField.Root name="email" size="3" onChange={addValues} placeholder="Enter your email" radius="none" />
             {errors.email && <Text size="2" color="red">{errors.email}</Text>}
