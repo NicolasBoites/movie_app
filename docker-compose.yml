@@ -1,7 +1,6 @@
-version: '4.0'
+version: '3.8'
 
 services:
-  # --- Servicio de Base de Datos MongoDB ---
   mongodb:
     image: mongo:latest
     container_name: movies_app_mongodb
@@ -12,11 +11,9 @@ services:
     networks:
       - app-network
 
-  # --- Microservicio de Autenticación/Usuario ---
   authentication-microservice:
-    build:
-      context: ./authentication_service
-      dockerfile: Dockerfile
+    build: ./authentication_service
+    image: aleccoria34/authentication-microservice:latest
     container_name: authentication_service
     ports:
       - "3009:3009"
@@ -25,7 +22,7 @@ services:
       HOST: 0.0.0.0
       PORT: 4001
       HTTP_PORT: 3009
-      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-DEFAULT_ACCESS_SECRET} # Fallback value for safety
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-DEFAULT_ACCESS_SECRET}
       ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:-6000s}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-DEFAULT_REFRESH_SECRET}
       REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION:-1y}
@@ -34,11 +31,9 @@ services:
     networks:
       - app-network
 
-  # --- Microservicio de Películas (backend-microservice) ---
   backend-microservice:
-    build:
-      context: ./backend_service
-      dockerfile: Dockerfile
+    build: ./backend_service
+    image: aleccoria34/backend-microservice:latest
     container_name: backend_service
     environment:
       MONGODB_URI: mongodb://mongodb:27017/MoviesApp
@@ -51,11 +46,9 @@ services:
     networks:
       - app-network
 
-  # --- API Gateway ---
   api-gateway:
-    build:
-      context: ./api_gateway
-      dockerfile: Dockerfile
+    build: ./api_gateway
+    image: aleccoria34/api-gateway:latest
     container_name: api_gateway
     ports:
       - "3000:3000"
@@ -72,11 +65,9 @@ services:
     networks:
       - app-network
 
-# --- Redes ---
 networks:
   app-network:
     driver: bridge
 
-# --- Volúmenes (para persistencia de datos) ---
 volumes:
-  mongodb_data: # Define un volumen llamado 'mongodb_data' para persistir los datos de MongoDB
+  mongodb_data:

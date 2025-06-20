@@ -4,6 +4,7 @@ import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
 import { ObjectIdValidationPipe } from '../common/pipes/object-id-validation.pipe';
+import { SQS } from 'aws-sdk';
 
 @ApiTags('Users Gateway')
 @Controller('users')
@@ -66,30 +67,51 @@ export class UsersGatewayController {
   }
 
   @Patch(':id/favorites/:movieId')
-  async addFavoriteMovie(
-    @Param('id', ObjectIdValidationPipe) id: string,
-    @Param('movieId') movieId: string,
-    @Req() req: any,
-  ) {
-    return this.proxyService.sendMicroserviceMessage(
-      { cmd: 'add_favorite_movie' },
-      { userId: id, movieId, actingUserId: req.user.sub },
-      req.user,
-      'AUTH_USER_SERVICE',
-    );
-  }
+async addFavoriteMovie(
+  @Param('id', ObjectIdValidationPipe) id: string,
+  @Param('movieId') movieId: string,
+  @Req() req: any,
+) {
+  const sqs = new SQS();
+
+  await sqs.sendMessage({
+    QueueUrl: process.env.FAVORITES_QUEUE_URL!,
+    MessageBody: JSON.stringify({
+      cmd: 'add_favorite_movie',
+      data: {
+        userId: id,
+        movieId,
+        actingUserId: req.user.sub,
+      },
+      token: req.user, // opcional
+    }),
+  }).promise();
+
+  return { message: 'Movie added to favorites.' };
+}
 
   @Delete(':id/favorites/:movieId')
-  async removeFavoriteMovie(
-    @Param('id', ObjectIdValidationPipe) id: string,
-    @Param('movieId') movieId: string,
-    @Req() req: any,
-  ) {
-    return this.proxyService.sendMicroserviceMessage(
-      { cmd: 'remove_favorite_movie' },
-      { userId: id, movieId, actingUserId: req.user.sub },
-      req.user,
-      'AUTH_USER_SERVICE',
-    );
-  }
+async removeFavoriteMovie(
+  @Param('id', ObjectIdValidationPipe) id: string,
+  @Param('movieId') movieId: string,
+  @Req() req: any,
+) {
+  const sqs = new SQS();
+
+  await sqs.sendMessage({
+    QueueUrl: process.env.FAVORITES_QUEUE_URL!,
+    MessageBody: JSON.stringify({
+      cmd: 'remove_favorite_movie',
+      data: {
+        userId: id,
+        movieId,
+        actingUserId: req.user.sub,
+      },
+      token: req.user, // opcional
+    }),
+  }).promise();
+
+  return { message: 'Movie deleted from favorites.' };
+}
+
 }
