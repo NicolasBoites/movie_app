@@ -3,7 +3,7 @@ import { Favorite } from "../favorites/Favorite";
 import { movieAPI } from "./movieAPI";
 const baseUrl = "http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com";
 // const baseUrl = "http://localhost:3003";
-const favoritesUrl = `${baseUrl}/api/v1/favorites`;
+const favoritesUrl = `${baseUrl}`;
 
 function translateStatusToErrorMessage(status: number) {
     switch (status) {
@@ -35,7 +35,8 @@ function checkStatus(response: any) {
         throw new Error(errorMessage);
     }
 }
-
+// http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com/685596a4fcd718d3c7d0dd57/check/685596ef0faf321b49f96e60
+// http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com/users/685596a4fcd718d3c7d0dd57/favorites/685596ef0faf321b49f96e60
 async function reauthenticate() {
     const refreshAccessToken = await authService.refreshAccessToken();
 
@@ -75,7 +76,7 @@ const favoriteAPI = {
     // Obtener IDs de favoritos de un usuario
     async getFavoriteIds(userId: string): Promise<string[]> {
         try {
-            const response = await fetch(`${favoritesUrl}/${userId}/list`, {
+            const response = await fetch(`${favoritesUrl}/users/${userId}`, {
                 headers: getAuthHeaders(),
             });
             
@@ -126,9 +127,9 @@ const favoriteAPI = {
     // Agregar película a favoritos
     async addToFavorites(userId: string, movieId: string): Promise<any> {
         try {
-            const response = await fetch(`${favoritesUrl}/${userId}`, {
-                method: "POST",
-                body: JSON.stringify({ movieId }),
+            const response = await fetch(`${favoritesUrl}/users/${userId}/favorites/${movieId}`, {
+                method: "PATCH",
+                // body: JSON.stringify({ movieId }),
                 headers: getAuthHeaders({ "Content-Type": "application/json" }),
             });
 
@@ -146,7 +147,7 @@ const favoriteAPI = {
     // Remover película de favoritos
     async removeFromFavorites(userId: string, movieId: string): Promise<any> {
         try {
-            const response = await fetch(`${favoritesUrl}/${userId}/movie/${movieId}`, {
+            const response = await fetch(`${favoritesUrl}/users/${userId}/favorites/${movieId}`, {
                 method: "DELETE",
                 headers: getAuthHeaders(),
             });

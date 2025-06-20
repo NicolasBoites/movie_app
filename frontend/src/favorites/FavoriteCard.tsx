@@ -85,15 +85,7 @@ function FavoriteCard({ favorite, onRemove }: FavoriteProps) {
                   {favorite.genre}
                 </Text>
               </Flex>
-              <Flex align="center" className="mt-2">
-                <button
-                  onClick={handleEditMovie}
-                  className="flex items-center gap-1 text-sm text-slate-600 font-medium hover:text-slate-900 hover:underline transition-colors duration-200"
-                >
-                  <Pencil1Icon width="12" height="12" />
-                  Edit Movie
-                </button>
-              </Flex>
+              
             </Box>
           </Flex>
         </Box>
