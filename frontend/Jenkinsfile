@@ -53,7 +53,13 @@ pipeline {
         ]]) {
           dir("${TF_DIR}") {
             bat '''
+              echo === TERRAFORM INIT ===
               terraform init -input=false
+              echo.
+              echo === TERRAFORM PLAN ===
+              terraform plan -input=false
+              echo.
+              echo === TERRAFORM APPLY ===
               terraform apply -auto-approve -input=false
             '''
           }
