@@ -1,10 +1,16 @@
-import { Injectable, ValidationPipe } from '@nestjs/common';
+// movies-backend/src/movie/controller/movie.controller.ts
+
+import { Controller, UseFilters, UseInterceptors } from '@nestjs/common'; // Asegúrate de importar UseInterceptors
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MovieService } from '../service/movie.service';
 import { CreateMovieDto } from '../dto/create-movie.dto';
 import { UpdateMovieDto } from '../dto/update-movie.dto';
+import { AllExceptionsFilter } from 'src/common/filters/rpc-exception.filter'; // Importa tu filtro
+import { ValidationInterceptor } from 'src/common/interceptors/validation.interceptor'; // ¡Importa el interceptor!
+import { plainToClass } from 'class-transformer'; // ¡Importa plainToClass!
 
-@Injectable()
+@UseFilters(AllExceptionsFilter) // Aplica tu filtro de excepciones RPC a todo el controlador
+@Controller()
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
@@ -24,14 +30,21 @@ export class MovieController {
   }
 
   @MessagePattern({ cmd: 'create_movie' })
-  async create(@Payload(ValidationPipe) createDto: CreateMovieDto) {
+  @UseInterceptors(new ValidationInterceptor(CreateMovieDto)) // Aplica el interceptor para CreateMovieDto
+  async create(@Payload() payload: any) { // Cambia el tipo del payload a 'any'
+    // El interceptor ya validó el payload. Ahora lo transformamos a la instancia del DTO.
+    const createDto = plainToClass(CreateMovieDto, payload);
     const movie = await this.movieService.create(createDto);
     return { message: 'Movie created successfully', data: movie };
   }
 
   @MessagePattern({ cmd: 'update_movie' })
-  async update(@Payload(ValidationPipe) payload: { id: string; updateDto: UpdateMovieDto }) {
-    const { id, updateDto } = payload;
+  // Aplica el interceptor para UpdateMovieDto, especificando que está anidado bajo 'updateDto'
+  @UseInterceptors(new ValidationInterceptor(UpdateMovieDto, 'updateDto'))
+  async update(@Payload() payload: { id: string; updateDto: any }) { // Cambia el tipo de updateDto a 'any'
+    const { id } = payload;
+    // El interceptor ya validó payload.updateDto. Ahora lo transformamos a la instancia.
+    const updateDto = plainToClass(UpdateMovieDto, payload.updateDto);
     const movie = await this.movieService.update(id, updateDto);
     return { message: 'Movie updated successfully', data: movie };
   }

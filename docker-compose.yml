@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: movies_app_mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  authentication-microservice:
+    build: ./authentication_service
+    image: aleccoria34/authentication-microservice:latest
+    container_name: authentication_service
+    ports:
+      - "3009:3009"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/MoviesApp
+      HOST: 0.0.0.0
+      PORT: 4001
+      HTTP_PORT: 3009
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-DEFAULT_ACCESS_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:-6000s}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-DEFAULT_REFRESH_SECRET}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION:-1y}
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  backend-microservice:
+    build: ./backend_service
+    image: aleccoria34/backend-microservice:latest
+    container_name: backend_service
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/MoviesApp
+      TCP_HOST: 0.0.0.0
+      TCP_PORT: 4000
+      VALIDATION_WHITELIST: "true"
+      FORBID_NON_WHITELISTED: "true"
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  api-gateway:
+    build: ./api_gateway
+    image: aleccoria34/api-gateway:latest
+    container_name: api_gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-DEFAULT_ACCESS_SECRET}
+      AUTH_USER_MS_HOST: authentication_service
+      AUTH_USER_MS_PORT: 4001
+      MOVIES_MS_HOST: backend_service
+      MOVIES_MS_PORT: 4000
+    depends_on:
+      - authentication-microservice
+      - backend-microservice
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
