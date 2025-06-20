@@ -1,6 +1,7 @@
 import authService from "../services/auth.service";
 import { Movie } from "../movies/Movie";
-const baseUrl = "http://localhost:3000";
+const baseUrl = "http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com";
+// const baseUrl = "http://localhost:3000";
 const url = `${baseUrl}/movies`;
 
 function translateStatusToErrorMessage(status: number) {
@@ -15,7 +16,7 @@ function translateStatusToErrorMessage(status: number) {
 }
 
 function checkStatus(response: any) {
-    console.log(response)
+
     if (response.ok) {
         return response;
     } else {
@@ -70,7 +71,6 @@ function getAuthHeaders(extraHeaders = {}) {
 
 const movieAPI = {
     async get(page = 1, limit = 9, title = "") {
-        console.log("title", title);
         return (
             fetch(`${url}?title=${title}&page=${page}&limit=${limit}&sort=title`, {
                 headers: getAuthHeaders(),
@@ -102,13 +102,18 @@ const movieAPI = {
         );
     },
 
-    find(id: string | undefined) {
+    async find(id: string | undefined) {
         return fetch(`${url}/${id}`, {
             headers: getAuthHeaders(),
         })
             .then(checkStatus)
             .then(parseJSON)
-            .then(convertToMovieModel);
+            .then((response) => response.data.data)
+            .catch(() => {
+                throw new Error(
+                    "There was an error retrieving the movies. Please try again."
+                );
+            })
     },
 
     post(movie: Movie) {

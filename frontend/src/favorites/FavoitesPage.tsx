@@ -22,9 +22,9 @@ function FavoritesPage() {
     favorites,
     setTitle,
     hasNextPage,
-    hasPrevPage,
     page,
-    setPage
+    setPage,
+    refetchFavorites
   } = useFavorites();
 
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -43,7 +43,7 @@ function FavoritesPage() {
   const handleLoadMore = () => {
     setPage(page + 1);
   };
-  
+
   // Calcular valores para mostrar
   const totalFavoritesShown = favorites.length; // Total de favoritos cargados hasta ahora
   const currentPageItems = favorites.length;
@@ -62,45 +62,18 @@ function FavoritesPage() {
         </div>
       </div>
 
-      {favorites ? (
-        <>
-          {/* Search bar */}
-          <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
-            <input
-              onChange={(e: any) => debounce(e.target.value)}
-              placeholder="Search movies by title..."
-              className="w-full text-xl text-slate-500 font-medium border-0 ring-0 outline-0 bg-transparent"
-            />
-            <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
-          </div>
+      {/* Search bar */}
+      <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
+        <input
+          onChange={(e: any) => debounce(e.target.value)}
+          placeholder="Search movies by title..."
+          className="w-full text-xl text-slate-500 font-medium border-0 ring-0 outline-0 bg-transparent"
+        />
+        <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
+      </div>
 
-          {isFetching && !isPending && <div>Loading...</div>}
 
-          {/* Favorites */}
-          <FavoriteList favorites={favorites} />
-
-          {/* Load More Section */}
-          {currentPageItems > 0 && (
-            <div className="border border-slate-300 py-8 flex justify-center items-center w-full gap-2">
-              <HeartFilledIcon className="text-slate-400" />
-              <Text className="text-slate-400 font-medium">
-                Showing {totalFavoritesShown} favorite movies
-                {hasNextPage ? " (more available)" : ""}
-              </Text>
-              {hasNextPage && (
-                <Text 
-                  as="div" 
-                  onClick={handleLoadMore}
-                  className="text-slate-900 font-medium cursor-pointer hover:underline ml-2"
-                  style={{ cursor: isFetching ? 'not-allowed' : 'pointer' }}
-                >
-                  {isFetching ? 'Loading...' : 'Load more'}
-                </Text>
-              )}
-            </div>
-          )}
-        </>
-      ) : isPending ? (
+      {isFetching && !isPending ? (
         // Loading Message
         <>
           <Skeleton className="!h-14"></Skeleton>
@@ -149,11 +122,43 @@ function FavoritesPage() {
             </section>
           </div>
         </div>
+      ) : favorites && favorites.length > 0 ? (
+        // Mostrar favoritos cuando hay datos
+        <>
+
+          {/* {isFetching && !isPending && <div>Loading...</div>} */}
+
+          {/* Favorites */}
+          <FavoriteList favorites={favorites} onRefresh={refetchFavorites} />
+
+          {/* Load More Section */}
+          {currentPageItems > 0 && (
+            <div className="border border-slate-300 py-8 flex justify-center items-center w-full gap-2">
+              <HeartFilledIcon className="text-slate-400" />
+              <Text className="text-slate-400 font-medium">
+                Showing {totalFavoritesShown} favorite movies
+                {hasNextPage ? " (more available)" : ""}
+              </Text>
+              {hasNextPage && (
+                <Text
+                  as="div"
+                  onClick={handleLoadMore}
+                  className="text-slate-900 font-medium cursor-pointer hover:underline ml-2"
+                  style={{ cursor: isFetching ? 'not-allowed' : 'pointer' }}
+                >
+                  {isFetching ? 'Loading...' : 'Load more'}
+                </Text>
+              )}
+            </div>
+          )}
+        </>
       ) : (
+        // No favorites found
         <div className="w-full flex justify-around">
           <div className="flex flex-col justify-center items-center">
             <img src="/movie-not-found.png" className="max-w-64" alt="" />
-            <h3 className="text-4xl my-4">Not favorites found</h3>
+            <h3 className="text-4xl my-4">No favorites found</h3>
+            <p className="text-slate-500">Start adding movies to your favorites collection!</p>
           </div>
         </div>
       )}

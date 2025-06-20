@@ -1,12 +1,68 @@
-import { HeartIcon } from "@radix-ui/react-icons";
-import { Card, Box, Inset, Strong, Text } from "@radix-ui/themes";
-import {Movie} from "./Movie";
+import { HeartIcon, HeartFilledIcon } from "@radix-ui/react-icons";
+import { Card, Inset } from "@radix-ui/themes";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Movie } from "./Movie";
+import { useFavoriteActions } from "../favorites/favoritesHooks";
+import authService from "../services/auth.service";
 
 interface MovieProps {
   movie: Movie;
 }
 
 function MovieCard({ movie }: MovieProps) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { addToFavorites, removeFromFavorites, checkIsFavorite } = useFavoriteActions();
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/update-movie/${movie.id}`);
+  };
+
+  // Verificar si la película está en favoritos al cargar el componente
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!movie.id) return;
+      
+      try {
+        const favoriteStatus = await checkIsFavorite(movie.id);
+        setIsFavorite(favoriteStatus);
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [movie.id, checkIsFavorite]);
+
+  const handleFavoriteClick = async () => {
+    if (isLoading || !movie.id) return;
+
+    const user = authService.getCurrentUser();
+    if (!user) {
+      alert("Please login to add favorites");
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      if (isFavorite) {
+        await removeFromFavorites(movie.id);
+        setIsFavorite(false);
+      } else {
+        await addToFavorites(movie.id);
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error("Error updating favorite:", error);
+      alert("Error updating favorite. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card size="2" className="!rounded-xs">
       <Inset clip="padding-box" side="top" pb="current">
@@ -19,13 +75,29 @@ function MovieCard({ movie }: MovieProps) {
         <div className="w-full mb-15">
           <div className="w-full flex flex-row justify-between items-center">
             <p className="font-medium text-xl">{movie.title}</p>
-            <HeartIcon className="text-slate-500" width="20" height="20" />
+            <button
+              onClick={handleFavoriteClick}
+              disabled={isLoading}
+              className="p-1 hover:bg-slate-100 rounded-full transition-colors duration-200 disabled:opacity-50"
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              {isFavorite ? (
+                <HeartFilledIcon className="text-red-500" width="20" height="20" />
+              ) : (
+                <HeartIcon className="text-slate-500 hover:text-red-400" width="20" height="20" />
+              )}
+            </button>
           </div>
           <p className="capitalize text-slate-600 font-medium">{movie.genre}</p>
         </div>
         <div className="w-full flex flex-row justify-between items-center">
           <p className="uppercase text-xs text-slate-400">Rank: {movie.rank}</p>
-          <p className="text-sm text-slate-600 font-medium">View Details</p>
+          <button
+            onClick={handleViewDetails}
+            className="text-sm text-slate-600 font-medium hover:text-slate-900 hover:underline transition-colors duration-200"
+          >
+            Edit Movie
+          </button>
         </div>
       </div>
     </Card>

@@ -70,53 +70,17 @@ function MoviesPage() {
         </button>
       </div>
 
-      {movies ? (
-        <>
-          {/* Search bar */}
-          <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
-            <input
-              onChange={(e: any) => debounce(e.target.value)}
-              placeholder="Search movies by title..."
-              className="w-full text-xl text-slate-500 font-medium border-0 ring-0 outline-0 bg-transparent"
-            />
-            <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
-          </div>
+      {/* Search bar */}
+      <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
+        <input
+          onChange={(e: any) => debounce(e.target.value)}
+          placeholder="Search movies by title..."
+          className="w-full text-xl text-slate-500 font-medium border-0 ring-0 outline-0 bg-transparent"
+        />
+        <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
+      </div>
 
-          {isFetching && !isPending && <div>Loading...</div>}
-
-          {/* Movies */}
-          <MovieList movies={movies} />
-
-          {/* Pagination */}
-          <div className="flex justify-center my-10">
-            <div className="flex items-center gap-2">
-                            {/* Botón Anterior */}
-              <button
-                className="w-10 h-10 flex justify-center items-center cursor-pointer"
-                onClick={() => setPage((old) => old - 1)}
-                disabled={!hasPrevPage}
-              >
-                <CaretLeftIcon />
-              </button>
-
-              {/* Botones de Página */}
-
-              <span className="text-slate-600">
-                  Página {page + 1}
-                </span>
-
-              {/* Botón Siguiente */}
-              <button
-                className="w-10 h-10 flex justify-center items-center cursor-pointer"
-                onClick={() => setPage((old) => old + 1)}
-                disabled={!hasNextPage}
-              >
-                <CaretRightIcon />
-              </button>
-            </div>
-          </div>
-        </>
-      ) : isPending ? (
+      {isPending ? (
         // Loading Message
         <>
           <Skeleton className="!h-14"></Skeleton>
@@ -165,11 +129,50 @@ function MoviesPage() {
             </section>
           </div>
         </div>
+      ) : movies && movies.length > 0 ? (
+        // Mostrar películas cuando hay datos
+        <>
+
+          {isFetching && !isPending && <div>Loading...</div>}
+
+          {/* Movies */}
+          <MovieList movies={movies} />
+
+          {/* Pagination */}
+          <div className="flex justify-center my-10">
+            <div className="flex items-center gap-2">
+              {/* Botón Anterior */}
+              <button
+                className="w-10 h-10 flex justify-center items-center cursor-pointer"
+                onClick={() => setPage((old) => old - 1)}
+                disabled={!hasPrevPage}
+              >
+                <CaretLeftIcon />
+              </button>
+
+              {/* Botones de Página */}
+              <span className="text-slate-600">
+                Página {page + 1}
+              </span>
+
+              {/* Botón Siguiente */}
+              <button
+                className="w-10 h-10 flex justify-center items-center cursor-pointer"
+                onClick={() => setPage((old) => old + 1)}
+                disabled={!hasNextPage}
+              >
+                <CaretRightIcon />
+              </button>
+            </div>
+          </div>
+        </>
       ) : (
+        // No movies found
         <div className="w-full flex justify-around">
           <div className="flex flex-col justify-center items-center">
             <img src="/movie-not-found.png" className="max-w-64" alt="" />
-            <h3 className="text-4xl my-4">Not movies found</h3>
+            <h3 className="text-4xl my-4">No movies found</h3>
+            <p className="text-slate-500">Try adjusting your search criteria or add some movies!</p>
           </div>
         </div>
       )}

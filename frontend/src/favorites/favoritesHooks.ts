@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { favoriteAPI } from '../fetchs/favoriteAPI';
+import authService from '../services/auth.service';
 import {
   useQuery,
 } from '@tanstack/react-query';
@@ -9,6 +10,14 @@ export function useFavorites() {
   const [title, setTitle] = useState('');
   const [allFavorites, setAllFavorites] = useState<any[]>([]);
 
+  // Obtener el userId del usuario actual
+  const getCurrentUserId = () => {
+    const user = authService.getCurrentUser();
+    return user?.id || user?._id || null;
+  };
+
+  const userId = getCurrentUserId();
+
   // Resetear página y favoritos acumulados cuando cambia el término de búsqueda
   useEffect(() => {
     setPage(0);
@@ -16,8 +25,14 @@ export function useFavorites() {
   }, [title]);
 
   const queryInfo = useQuery({
-    queryKey: ['favorites', page, title],
-    queryFn: () => favoriteAPI.get(page + 1, 9, title),
+    queryKey: ['favorites', userId, page, title],
+    queryFn: () => {
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+      return favoriteAPI.getFavoriteMovies(userId, page + 1, 9, title);
+    },
+    enabled: !!userId, // Solo ejecutar si hay userId
     placeholderData: (previousData) => previousData,
   });
 
@@ -46,6 +61,12 @@ export function useFavorites() {
   const hasNextPage = currentPageFavorites.length === 9; // Si hay exactamente 9 películas, podría haber más
   const hasPrevPage = page > 0; // Si no estamos en la primera página
 
+  const refetchFavorites = () => {
+    queryInfo.refetch();
+    setPage(0);
+    setAllFavorites([]);
+  };
+
   return { 
     ...queryInfo, 
     favorites: allFavorites,
@@ -54,7 +75,47 @@ export function useFavorites() {
     page, 
     setPage, 
     title, 
-    setTitle 
+    setTitle,
+    userId,
+    refetchFavorites
+  };
+}
+
+// Hook para agregar/remover favoritos
+export function useFavoriteActions() {
+  const getCurrentUserId = () => {
+    const user = authService.getCurrentUser();
+    return user?.id || user?._id || null;
+  };
+
+  const addToFavorites = async (movieId: string) => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    return favoriteAPI.addToFavorites(userId, movieId);
+  };
+
+  const removeFromFavorites = async (movieId: string) => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    return favoriteAPI.removeFromFavorites(userId, movieId);
+  };
+
+  const checkIsFavorite = async (movieId: string) => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      return false;
+    }
+    return favoriteAPI.isFavorite(userId, movieId);
+  };
+
+  return {
+    addToFavorites,
+    removeFromFavorites,
+    checkIsFavorite,
   };
 }
 

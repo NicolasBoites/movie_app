@@ -1,0 +1,118 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_DEFAULT_REGION = 'us-east-1'
+    TF_DIR            = 'frontend/infra'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Setup AWS CLI Path') {
+      steps {
+        script {
+          env.PATH = "${env.PATH};C:\\Program Files\\Amazon\\AWSCLIV2"
+        }
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'aws-access',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          bat '''
+            echo === FIXING AWS CLI PATH ===
+            echo AWS CLI found at: C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe
+            echo Testing AWS CLI:
+            aws --version
+            echo.
+            echo === TESTING AWS CONNECTION ===
+            aws sts get-caller-identity && (
+              echo ✓ SUCCESS: AWS connection established
+              echo Connected as:
+              aws sts get-caller-identity --query "Arn" --output text
+            ) || (
+              echo ✗ ERROR: Unable to connect to AWS
+              echo Please check your credentials and try again
+            )
+            echo.
+          '''
+        }
+      }
+    }
+
+    stage('Terraform - init & apply') {
+      steps {
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'aws-access',      // → AccessKey + SecretKey en Jenkins
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          dir("${TF_DIR}") {
+            bat '''
+              echo === TERRAFORM INIT ===
+              terraform init -input=false
+              echo.
+              echo === TERRAFORM PLAN ===
+              terraform plan -input=false
+              echo.
+              echo === TERRAFORM APPLY ===
+              terraform apply -auto-approve -input=false
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Build React') {
+      tools { nodejs 'node20' }            // Define tu tool en "Global Tool Configuration"
+      steps {
+        dir('frontend') {
+          // Instala todo, incluyendo devDependencies
+          bat 'npm ci --include=dev'
+          // Corre el build y muestra todo el log
+          bat 'npm run build'
+          // Lista la carpeta para confirmar si se creó dist
+          bat 'dir'
+        }
+      }
+    }
+
+    stage('Deploy to S3') {
+      steps {
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'aws-alec-access',
+          usernameVariable: 'AWS_ACCESS_KEY_ID',
+          passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          script {
+            
+            // Lee el bucket que Terraform acaba de crear
+            def bucketName
+            dir("${TF_DIR}") {
+              bucketName = bat(
+                script: "@echo off & terraform output -raw bucket_name",
+                returnStdout: true
+              ).trim()
+            }  
+            
+            // Deploy to S3
+            bat """
+              echo Deploying to S3...
+              aws s3 sync frontend/dist/ s3://${bucketName}/ --delete
+            """
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    success { echo 'SUCCESS: Build & deploy completados' }
+    failure { echo 'ERROR: Algo falló; revisa los logs' }
+  }
+}

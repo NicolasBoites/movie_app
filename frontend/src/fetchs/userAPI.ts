@@ -1,5 +1,6 @@
 import { User } from './user';
-const baseUrl = 'http://localhost:3000';
+const baseUrl = "http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com";
+// const baseUrl = 'http://localhost:3000';
 const url = `${baseUrl}/auth`;
 
 function translateStatusToErrorMessage(status: number) {

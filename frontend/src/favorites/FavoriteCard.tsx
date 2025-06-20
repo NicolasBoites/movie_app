@@ -1,15 +1,53 @@
 import {
   DotFilledIcon,
   HeartFilledIcon,
+  Pencil1Icon,
 } from "@radix-ui/react-icons";
 import { Card, Box, Text, Flex } from "@radix-ui/themes";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Favorite } from "./Favorite";
+import { useFavoriteActions } from "./favoritesHooks";
+import authService from "../services/auth.service";
 
 interface FavoriteProps {
   favorite: Favorite;
+  onRemove?: () => void; // Callback para actualizar la lista cuando se remueve
 }
 
-function FavoriteCard({ favorite }: FavoriteProps) {
+function FavoriteCard({ favorite, onRemove }: FavoriteProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { removeFromFavorites } = useFavoriteActions();
+  const navigate = useNavigate();
+
+  const handleEditMovie = () => {
+    navigate(`/update-movie/${favorite.id}`);
+  };
+
+  const handleRemoveFromFavorites = async () => {
+    if (isLoading || !favorite.id) return;
+
+    const user = authService.getCurrentUser();
+    if (!user) {
+      alert("Please login to manage favorites");
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      await removeFromFavorites(favorite.id);
+      // Llamar callback para actualizar la lista
+      if (onRemove) {
+        onRemove();
+      }
+    } catch (error) {
+      console.error("Error removing from favorites:", error);
+      alert("Error removing from favorites. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <Card size="2" className="!rounded-none !p-6">
       <Flex gap="3" align="center" justify="between">
@@ -47,11 +85,21 @@ function FavoriteCard({ favorite }: FavoriteProps) {
                   {favorite.genre}
                 </Text>
               </Flex>
+              
             </Box>
           </Flex>
         </Box>
         <Box>
-          <HeartFilledIcon className="w-6 h-6 text-slate-400" />
+          <button
+            onClick={handleRemoveFromFavorites}
+            disabled={isLoading}
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors duration-200 disabled:opacity-50"
+            title="Remove from favorites"
+          >
+            <HeartFilledIcon 
+              className={`w-6 h-6 ${isLoading ? 'text-slate-300' : 'text-red-500 hover:text-red-600'}`} 
+            />
+          </button>
         </Box>
       </Flex>
     </Card>
