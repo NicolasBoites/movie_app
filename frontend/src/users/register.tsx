@@ -3,6 +3,7 @@ import Title from "../components/Title";
 import { SyntheticEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userAPI } from "../fetchs/userAPI";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 export default function Register() {
     let [user, setUser]: any = useState({username:'', email:'', password:'',confirm:'', terms: false });
