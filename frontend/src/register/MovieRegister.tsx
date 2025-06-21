@@ -1,37 +1,37 @@
-import { Text, Flex, Box, Card, Grid } from '@radix-ui/themes'
-import { PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
+import { Text, Flex, Box, Card, Grid, Callout } from '@radix-ui/themes'
+import { PlusIcon, InfoCircledIcon, CheckIcon } from '@radix-ui/react-icons'
 import { useState } from 'react'
 import { movieAPI } from '../fetchs/movieAPI'
 import { useNavigate } from 'react-router'
-import { type IMovie, Movie } from '../interfaces/movies'
 import Form from './Form'
 import Title from '../components/Title'
 import ButtonOptions from './ButtonOptions'
 
 class movieFormat {
-	title: string= ''
-	rank: number=0;
-	genre: string='';
+    title: string = ''
+    rank: number = 0;
+    genre: string = '';
 }
 
 export default function () {
-    const [movie, setMovie]:any  = useState(new movieFormat());
+    const [movie, setMovie]: any = useState(new movieFormat());
     const [errors, setErrors]: any = useState({});
     const [isLoading, setLoading] = useState(false);
+    const [isSuccess, setSuccess] = useState(false);
     const navigate = useNavigate();
 
     const saveMovie = () => {
         setLoading(true);
-				setErrors({})
+        setErrors({})
 
         movieAPI.post(movie)
             .then(() => {
-                navigate('/')
+                setSuccess(true)
+                setTimeout(() =>  navigate('/'), 2500)
             }).catch((err: any) => {
-							console.log(err)
+                console.log(err)
                 if (err.statusCode < 500)
                     setErrors(err.message)
-            }).finally(() => {
                 setLoading(false)
             })
     }
@@ -44,6 +44,14 @@ export default function () {
     return <Grid columns="1" gap="2" style={{ justifyItems: 'center', }} align="center" mt="9">
         <Grid gap="5" align="center">
             <Title title="Add New movie" subTitle="Create new movie entry for your collection" back={getBack} />
+            {isSuccess && <Callout.Root color="green" size="3">
+                <Callout.Icon width="5rem">
+                    <CheckIcon />
+                </Callout.Icon>
+                <Callout.Text>
+                    Movie registered <strong>{movie.title}!</strong>
+                </Callout.Text>
+            </Callout.Root>}
             <Card>
                 <Form data={movie} onChange={setMovie} errors={errors} />
                 <ButtonOptions onAccept={saveMovie} onCancel={getBack} isLoading={isLoading}>

@@ -219,8 +219,8 @@ const movieAPI = {
         //         );
         //     });
     },
-    put(movie: Movie) {
-        return fetch(`${url}/${movie.id}`, {
+    put({id, ...movie}: Movie) {
+        return fetch(`${url}/${id}`, {
             method: 'PUT',
             body: JSON.stringify(movie),
             headers: {

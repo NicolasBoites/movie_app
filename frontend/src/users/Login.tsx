@@ -1,4 +1,4 @@
-import { Button, Grid, Text, TextField } from "@radix-ui/themes";
+import { Badge, Button, Grid, Text, TextField } from "@radix-ui/themes";
 import Title from "../components/Title";
 import { Link, useNavigate } from "react-router-dom";
 import { SyntheticEvent, useState } from "react";
@@ -36,10 +36,10 @@ export default function Login() {
         <Grid gap="4" width="100%" maxWidth="20rem" mt="4">
             <Text size="2" >Email address</Text>
             <TextField.Root radius="none" name="email" size="3" onChange={addValues} placeholder="Enter your email" />
-            {errors.email && <Text as="span" size="2" color="red">{errors.email}</Text>}
+            {errors.email && <Badge as="span" size="2" color="red">{errors.email}</Badge>}
             <Text size="2">Password</Text>
             <TextField.Root type="password" radius="none" name="password" size="3" onChange={addValues} placeholder="Enter your password" />
-            {errors.password && <Text as="span" size="2" color="red">{errors.password}</Text>}
+            {errors.password && <Badge as="span" size="2" color="red">{errors.password}</Badge>}
             <Button radius="none" onClick={logIn} loading={isLoading} mt="4" color="gray" highContrast size="4">SIGN IN</Button>
         </Grid>
         <Grid mt="5">
