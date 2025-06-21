@@ -1,4 +1,3 @@
-// api_gateway/src/users-gateway/users-gateway.controller.ts
 import { Controller, Get, Post, Patch, Delete, Body, Param, Req, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
@@ -113,5 +112,31 @@ async removeFavoriteMovie(
 
   return { message: 'Movie deleted from favorites.' };
 }
+
+  @Get(':id/favorites')
+    async getFavoriteMovies(
+      @Param('id', ObjectIdValidationPipe) id: string,
+      @Req() req: any,
+    ) {
+      const ids: string[] = await this.proxyService.sendMicroserviceMessage(
+        { cmd: 'get_favorite_movies' },
+        { userId: id },
+        req.user,
+        'AUTH_USER_SERVICE',
+      );
+    
+      if (!ids || ids.length === 0) {
+        return [];
+      }
+    
+      const movies = await this.proxyService.sendMicroserviceMessage(
+        { cmd: 'get_movies_by_ids' },
+        { ids },
+        req.user,
+        'MOVIES_SERVICE',
+      );
+    
+      return movies;
+    }
 
 }

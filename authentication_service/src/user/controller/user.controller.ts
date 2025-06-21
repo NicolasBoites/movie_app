@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import { Controller, ValidationPipe } from '@nestjs/common';
+=======
+import { Controller, NotFoundException, UseFilters, UseInterceptors } from '@nestjs/common';
+>>>>>>> Stashed changes
 import { CreateUserDto } from '../../common/_dtos/create_user.dto';
 import { UpdateUserDto } from '../../common/_dtos/update_user.dto';
 import { UserService } from '../service/user.service';
@@ -43,4 +47,14 @@ export class UserController {
   async removeFavoriteMovie(@Payload() payload: { userId: string, movieId: string, actingUserId?: string }): Promise<boolean> {
     return this.userService.removeFavoriteMovie(payload.userId, payload.movieId);
   }
+
+  @MessagePattern({ cmd: 'get_favorite_movies' })
+  async getFavoriteMovies(@Payload() payload: { userId: string }): Promise<string[]> {
+    const user = await this.userService.findByIdInternal(payload.userId);
+    if (!user) {
+      throw new NotFoundException(`User ${payload.userId} not found`);
+    }
+    return user.favoriteMovieIds || [];
+  }
+
 }
