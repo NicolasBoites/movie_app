@@ -42,7 +42,7 @@ export class MoviesGatewayController {
       null,
       'MOVIES_SERVICE',
     );
-    return { message: 'Movie found successfully', data: movie };
+    return movie;
   }
 
   @Post()
@@ -54,7 +54,7 @@ export class MoviesGatewayController {
       null,
       'MOVIES_SERVICE',
     );
-    return { message: 'Movie created successfully', data: movie };
+    return movie;
   }
 
   @Put(':id')
@@ -69,7 +69,7 @@ export class MoviesGatewayController {
       null,
       'MOVIES_SERVICE',
     );
-    return { message: 'Movie updated successfully', data: movie };
+    return movie;
   }
 
   @Delete(':id')

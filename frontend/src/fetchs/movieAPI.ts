@@ -1,9 +1,11 @@
 import { Movie } from '../movies/Movie';
 // import Movie from '../interfaces/movies';
+import * as Utils from './Utils'
 
 import movies from './movies';
-const baseUrl = 'http://localhost:3000';
-const url = `${baseUrl}/movie`;
+//const baseUrl = 'http://localhost:3000';
+const baseUrl = 'http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com';
+const url = `${baseUrl}/movies`;
 
 function translateStatusToErrorMessage(status: number) {
     switch (status) {
@@ -17,6 +19,7 @@ function translateStatusToErrorMessage(status: number) {
 }
 
 function checkStatus(response: any) {
+    console.log(response)
     if (response.ok) {
         return response;
     } else {
@@ -33,9 +36,9 @@ function checkStatus(response: any) {
 }
 
 async function parseJSON(response: Response) {
-    const jsonResponse = await response.json();
+    //const jsonResponse = await response.json();
 
-    return jsonResponse.data;
+    return response.json();
 }
 
 // eslint-disable-next-line
@@ -216,12 +219,13 @@ const movieAPI = {
         //         );
         //     });
     },
-    put(movie: Movie) {
-        return fetch(`${url}/${movie.id}`, {
+    put({id, ...movie}: Movie) {
+        return fetch(`${url}/${id}`, {
             method: 'PUT',
             body: JSON.stringify(movie),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+								'Authorization': Utils.getToken()
             }
         })
             // .then(delay(2000))
@@ -235,11 +239,16 @@ const movieAPI = {
             });
     },
 
-    find(id: string) {
-        return fetch(`${url}/${id}`)
-            .then(checkStatus)
+    find(id: string | undefined) {
+        return fetch(`${url}/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': Utils.getToken()
+            }
+        })
+            //.then(checkStatus)
             .then(parseJSON)
-            .then(convertToMovieModel);
+            .then((data) => data.data);
     },
 
     post(movie: Movie) {
@@ -247,18 +256,14 @@ const movieAPI = {
             method: 'POST',
             body: JSON.stringify(movie),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': Utils.getToken()
             }
         })
             // .then(delay(2000))
-            .then(checkStatus)
-            .then(parseJSON)
-            .catch((error: TypeError) => {
-                console.log('log client error ' + error);
-                throw new Error(
-                    'There was an error updating the movie. Please try again.'
-                );
-            });
+            //.then(checkStatus)
+            .then(Utils.parseJSON)
+						.catch(Utils.formatError(movie))
     },
 
     delete(movie: Movie) {

@@ -39,10 +39,16 @@ export class MovieService {
   }));
 }
 
-  async findOne(id: string): Promise<Movie> {
-    const movie = await this.movieModel.findById(id);
+  async findOne(id: string): Promise<any> {
+    const movie = await this.movieModel.findById(id).lean();
     if (!movie) throw new NotFoundException('Movie not found');
-    return movie;
+  
+    return {
+      id: movie._id.toString(),
+      title: movie.title,
+      rank: movie.rank,
+      genre: movie.genre,
+    };
   }
 
   async create(createMovieDto: CreateMovieDto): Promise<Movie> {

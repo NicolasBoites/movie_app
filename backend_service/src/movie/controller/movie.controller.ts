@@ -1,10 +1,14 @@
-import { Injectable, ValidationPipe } from '@nestjs/common';
+import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MovieService } from '../service/movie.service';
 import { CreateMovieDto } from '../dto/create-movie.dto';
 import { UpdateMovieDto } from '../dto/update-movie.dto';
+import { AllExceptionsFilter } from 'src/common/filters/rpc-exception.filter';
+import { ValidationInterceptor } from 'src/common/interceptors/validation.interceptor';
+import { plainToClass } from 'class-transformer';
 
-@Injectable()
+@UseFilters(AllExceptionsFilter)
+@Controller()
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
@@ -24,14 +28,18 @@ export class MovieController {
   }
 
   @MessagePattern({ cmd: 'create_movie' })
-  async create(@Payload(ValidationPipe) createDto: CreateMovieDto) {
+  @UseInterceptors(new ValidationInterceptor(CreateMovieDto))
+  async create(@Payload() payload: any) {
+    const createDto = plainToClass(CreateMovieDto, payload);
     const movie = await this.movieService.create(createDto);
     return { message: 'Movie created successfully', data: movie };
   }
 
   @MessagePattern({ cmd: 'update_movie' })
-  async update(@Payload(ValidationPipe) payload: { id: string; updateDto: UpdateMovieDto }) {
-    const { id, updateDto } = payload;
+  @UseInterceptors(new ValidationInterceptor(UpdateMovieDto, 'updateDto'))
+  async update(@Payload() payload: { id: string; updateDto: any }) {
+    const { id } = payload;
+    const updateDto = plainToClass(UpdateMovieDto, payload.updateDto);
     const movie = await this.movieService.update(id, updateDto);
     return { message: 'Movie updated successfully', data: movie };
   }

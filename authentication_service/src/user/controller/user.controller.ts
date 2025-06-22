@@ -1,21 +1,23 @@
-<<<<<<< Updated upstream
-import { Controller, ValidationPipe } from '@nestjs/common';
-=======
-import { Controller, NotFoundException, UseFilters, UseInterceptors } from '@nestjs/common';
->>>>>>> Stashed changes
+import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from '../../common/_dtos/create_user.dto';
 import { UpdateUserDto } from '../../common/_dtos/update_user.dto';
 import { UserService } from '../service/user.service';
 import { UserResponseDto } from '../../common/_dtos/user-response.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { AllExceptionsFilter } from 'src/common/filters/rpc-exception.filter';
+import { ValidationInterceptor } from 'src/common/interceptors/validation.interceptor';
+import { plainToClass } from 'class-transformer';
 
+@UseFilters(AllExceptionsFilter)
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @MessagePattern({ cmd: 'create_user' })
-  async create(@Payload(ValidationPipe) payload: { createUserDto: CreateUserDto, userId?: string }): Promise<UserResponseDto> {
-    return this.userService.create(payload.createUserDto);
+  @UseInterceptors(new ValidationInterceptor(CreateUserDto, 'createUserDto'))
+  async create(@Payload() payload: { createUserDto: any, userId?: string }): Promise<UserResponseDto> {
+    const createUserDto = plainToClass(CreateUserDto, payload.createUserDto);
+    return this.userService.create(createUserDto);
   }
 
   @MessagePattern({ cmd: 'find_all_users' })
@@ -24,13 +26,16 @@ export class UserController {
   }
 
   @MessagePattern({ cmd: 'find_user_by_id' })
+  // No necesita interceptor de validación de DTO.
   async findById(@Payload() payload: { id: string, userId?: string }): Promise<UserResponseDto> {
     return this.userService.findById(payload.id);
   }
 
   @MessagePattern({ cmd: 'update_user' })
-  async update(@Payload() payload: { id: string, updateUserDto: UpdateUserDto, userId?: string }): Promise<boolean> {
-    return this.userService.update(payload.id, payload.updateUserDto);
+  @UseInterceptors(new ValidationInterceptor(UpdateUserDto, 'updateUserDto'))
+  async update(@Payload() payload: { id: string, updateUserDto: any, userId?: string }): Promise<boolean> {
+    const updateUserDto = plainToClass(UpdateUserDto, payload.updateUserDto);
+    return this.userService.update(payload.id, updateUserDto);
   }
 
   @MessagePattern({ cmd: 'remove_user' })
@@ -47,14 +52,4 @@ export class UserController {
   async removeFavoriteMovie(@Payload() payload: { userId: string, movieId: string, actingUserId?: string }): Promise<boolean> {
     return this.userService.removeFavoriteMovie(payload.userId, payload.movieId);
   }
-
-  @MessagePattern({ cmd: 'get_favorite_movies' })
-  async getFavoriteMovies(@Payload() payload: { userId: string }): Promise<string[]> {
-    const user = await this.userService.findByIdInternal(payload.userId);
-    if (!user) {
-      throw new NotFoundException(`User ${payload.userId} not found`);
-    }
-    return user.favoriteMovieIds || [];
-  }
-
 }

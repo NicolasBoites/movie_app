@@ -25,7 +25,7 @@ export class AuthService {
   async signUp(createUserDto: CreateUserDto): Promise<LoginResponse> {
     const userExists = await this.userService.findByEmailInternal(createUserDto.email);
     if (userExists) {
-      throw new BadRequestException('User already exists');
+      throw new BadRequestException('User with that email already exists');
     }
 
     const newUser = await this.userService.createInternal({
@@ -47,7 +47,7 @@ export class AuthService {
   async signIn(data: AuthDto): Promise<LoginResponse> {
     const user = await this.userService.findByEmailInternal(data.email);
     if (!user) {
-        throw new BadRequestException('User does not exist');
+        throw new BadRequestException('User with that email does not exist');
     }
 
     const passwordMatches = await argon2.verify(user.password, data.password);

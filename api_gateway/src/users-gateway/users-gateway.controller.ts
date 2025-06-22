@@ -7,11 +7,11 @@ import { SQS } from 'aws-sdk';
 
 @ApiTags('Users Gateway')
 @Controller('users')
-@UseGuards(AccessTokenGuard)
 export class UsersGatewayController {
   constructor(private readonly proxyService: ProxyService) {}
 
   @Post()
+  @UseGuards(AccessTokenGuard)
   async createUser(@Body() body: any, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'create_user' },
@@ -22,6 +22,7 @@ export class UsersGatewayController {
   }
 
   @Get()
+  @UseGuards(AccessTokenGuard)
   async findAllUsers(@Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'find_all_users' },
@@ -32,6 +33,7 @@ export class UsersGatewayController {
   }
 
   @Get(':id')
+  @UseGuards(AccessTokenGuard)
   async findUserById(@Param('id', ObjectIdValidationPipe) id: string, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'find_user_by_id' },
@@ -42,6 +44,7 @@ export class UsersGatewayController {
   }
 
   @Patch(':id')
+  @UseGuards(AccessTokenGuard)
   async updateUser(
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: any,
@@ -56,6 +59,7 @@ export class UsersGatewayController {
   }
 
   @Delete(':id')
+  @UseGuards(AccessTokenGuard)
   async deleteUser(@Param('id', ObjectIdValidationPipe) id: string, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'remove_user' },
@@ -71,7 +75,12 @@ async addFavoriteMovie(
   @Param('movieId') movieId: string,
   @Req() req: any,
 ) {
-  const sqs = new SQS();
+  const sqs = new SQS({ 
+    region: 'us-east-1',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    }, });
 
   await sqs.sendMessage({
     QueueUrl: process.env.FAVORITES_QUEUE_URL!,
@@ -80,9 +89,9 @@ async addFavoriteMovie(
       data: {
         userId: id,
         movieId,
-        actingUserId: req.user.sub,
+        //actingUserId: req.user.sub,
       },
-      token: req.user, // opcional
+      //token: req.user, // opcional
     }),
   }).promise();
 
@@ -95,7 +104,13 @@ async removeFavoriteMovie(
   @Param('movieId') movieId: string,
   @Req() req: any,
 ) {
-  const sqs = new SQS();
+  const sqs = new SQS({ 
+    region: 'us-east-1',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
+   });
 
   await sqs.sendMessage({
     QueueUrl: process.env.FAVORITES_QUEUE_URL!,
@@ -104,9 +119,9 @@ async removeFavoriteMovie(
       data: {
         userId: id,
         movieId,
-        actingUserId: req.user.sub,
+        //actingUserId: req.user.sub,
       },
-      token: req.user, // opcional
+      //token: req.user, // opcional
     }),
   }).promise();
 

@@ -1,84 +1,64 @@
-import { Heading, Text, IconButton, Flex, Box, TextField, Select, Card, Grid, Button } from '@radix-ui/themes'
-import { ArrowLeftIcon, PlusIcon, InfoCircledIcon } from '@radix-ui/react-icons'
-import { useState, SyntheticEvent } from 'react'
-import Movie from '../fetchs/movies'
-import {useNavigate} from 'react-router'
-import type IMovie from '../interfaces/movies'
+import { Text, Flex, Box, Card, Grid, Callout } from '@radix-ui/themes'
+import { PlusIcon, InfoCircledIcon, CheckIcon } from '@radix-ui/react-icons'
+import { useState } from 'react'
+import { movieAPI } from '../fetchs/movieAPI'
+import { useNavigate } from 'react-router'
+import Form from './Form'
+import Title from '../components/Title'
+import ButtonOptions from './ButtonOptions'
+
+class movieFormat {
+    title: string = ''
+    rank: number = 0;
+    genre: string = '';
+}
 
 export default function () {
-	const [movie, setMovie]:any = useState<IMovie>({});
-	const [errors, setErrors] = useState<IMovie>({});
-	const navigate = useNavigate();
+    const [movie, setMovie]: any = useState(new movieFormat());
+    const [errors, setErrors]: any = useState({});
+    const [isLoading, setLoading] = useState(false);
+    const [isSuccess, setSuccess] = useState(false);
+    const navigate = useNavigate();
 
-	const saveData = (event: SyntheticEvent) => {
-		const el = event.target as HTMLInputElement;
-		setMovie(old => ({...old, [el.name]: el.value}));
-	}
+    const saveMovie = () => {
+        setLoading(true);
+        setErrors({})
 
-	const selectGenre = (value: int) => {
-		setMovie({...movie, genre: value});
-	}
+        movieAPI.post(movie)
+            .then(() => {
+                setSuccess(true)
+                setTimeout(() =>  navigate('/'), 2500)
+            }).catch((err: any) => {
+                console.log(err)
+                if (err.statusCode < 500)
+                    setErrors(err.message)
+                setLoading(false)
+            })
+    }
 
-	const saveMovie = () => {
-		Movie.post(movie)
-		.then(res => {
-			if (res.error)
-				navigate('/')
-		}).catch(async err => {
-			setErrors(await err)
-		})
-	}
+    const getBack = () => {
+        if (!isLoading)
+            navigate(-1)
+    }
 
     return <Grid columns="1" gap="2" style={{ justifyItems: 'center', }} align="center" mt="9">
         <Grid gap="5" align="center">
-            <Flex align="center" gap="4" >
-                <Box >
-                    <IconButton variant="ghost" color="gray" >
-                        <ArrowLeftIcon width="35" height="auto" />
-                    </IconButton>
-                </Box>
-                <Grid gap="2">
-                    <Heading size="8" weight="medium">Add New movie</Heading>
-                    <Text size="4" weight="medium" style={{ color: '#6b7280' }} htmlFor="">
-                        Create new movie entry for your collection
-                    </Text>
-                </Grid>
-            </Flex>
-						<Card>
-							<Grid gap="4" m="4">
-								<Text size="2">MOVIE TITLE</Text>
-								<TextField.Root name="title" color="gray" onChange={saveData} variant="surface"  size="3" placeholder="Enter movie title..." />
-								<Text size="2">RANK</Text>
-								<TextField.Root name="rank" color='gray' onChange={saveData} variant="surface" size="3"  placeholder="Enter rank number..." />
-								<Text size="2">Genre</Text>
-								<Select.Root size="3" name="genre" onValueChange={selectGenre}>
-										<Select.Trigger placeholder='Select genre...' color='gray' variant="surface"  />
-										<Select.Content color="gray" variant="solid">
-												<Select.Item value="0">
-														Thriller
-												</Select.Item>
-												<Select.Item value="1">
-														Joke
-												</Select.Item>
-												<Select.Item value="2">
-														Terror
-												</Select.Item>
-												<Select.Item value="3">
-														Suspence
-												</Select.Item>
-										</Select.Content>
-								</Select.Root>
-							</Grid>
-							<Grid columns="2" gap="3" justify="center" m="4" mt="6">
-								<Button radius="none" size="4" variant="outline" color='gray' highContrast>
-											Cancel
-									</Button>
-									<Button onClick={saveMovie} radius="none" size="4" color='gray' highContrast>
-											<PlusIcon />
-											Create Movie
-									</Button>
-							</Grid>
-						</Card>
+            <Title title="Add New movie" subTitle="Create new movie entry for your collection" back={getBack} />
+            {isSuccess && <Callout.Root color="green" size="3">
+                <Callout.Icon width="5rem">
+                    <CheckIcon />
+                </Callout.Icon>
+                <Callout.Text>
+                    Movie registered <strong>{movie.title}!</strong>
+                </Callout.Text>
+            </Callout.Root>}
+            <Card>
+                <Form data={movie} onChange={setMovie} errors={errors} />
+                <ButtonOptions onAccept={saveMovie} onCancel={getBack} isLoading={isLoading}>
+                    <PlusIcon />
+                    Create movie
+                </ButtonOptions>
+            </Card>
             <Card>
                 <Flex >
                     <Box mt="3">
@@ -88,7 +68,7 @@ export default function () {
                         <Text>Movie Creation Guidelines</Text>
                         <ul>
                             <li>
-                                Movie tistles should be unique in the collection
+                                Movie titles should be unique in the collection
                             </li>
                             <li>
                                 Rank numbers should reflect the movie's position in your personal ranking
