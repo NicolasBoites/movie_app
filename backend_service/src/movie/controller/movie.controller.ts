@@ -1,4 +1,4 @@
-import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
+import { Controller, NotFoundException, UseFilters, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MovieService } from '../service/movie.service';
 import { CreateMovieDto } from '../dto/create-movie.dto';
@@ -48,5 +48,11 @@ export class MovieController {
   async remove(@Payload() id: string) {
     const result = await this.movieService.remove(id);
     return result;
+  }
+
+  @MessagePattern({ cmd: 'get_movies_by_ids' })
+  async getFavoriteMovies(@Payload() payload: { moviesIds: string [], page: number; limit: number; title?: string} ): Promise<string[]> {
+    const { page, limit, title, moviesIds } = payload;
+    return await this.movieService.findByIds(moviesIds, page, limit, title);
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Req, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Req, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
@@ -129,25 +129,28 @@ async removeFavoriteMovie(
 }
 
   @Get(':id/favorites')
+  @UseGuards(AccessTokenGuard)
     async getFavoriteMovies(
       @Param('id', ObjectIdValidationPipe) id: string,
       @Req() req: any,
+      @Query() query: any
     ) {
-      const ids: string[] = await this.proxyService.sendMicroserviceMessage(
-        { cmd: 'get_favorite_movies' },
-        { userId: id },
-        req.user,
+      
+      const users: any = await this.proxyService.sendMicroserviceMessage(
+        { cmd: 'find_user_by_id' },
+        { id },
+        null,
         'AUTH_USER_SERVICE',
       );
-    
-      if (!ids || ids.length === 0) {
+      const moviesIds = users.favoriteMovieIds;
+      if (!moviesIds || moviesIds.length === 0) {
         return [];
       }
     
-      const movies = await this.proxyService.sendMicroserviceMessage(
+      const movies: any = await this.proxyService.sendMicroserviceMessage(
         { cmd: 'get_movies_by_ids' },
-        { ids },
-        req.user,
+        { moviesIds, query },
+        null,
         'MOVIES_SERVICE',
       );
     

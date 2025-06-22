@@ -84,18 +84,4 @@ export class MoviesGatewayController {
     return result;
   }
 
-  @Get('batch')
-  async getMoviesByIds(
-    @Query('ids') ids: string,
-    @Req() req: any,
-  ) {
-    const idArray = ids.split(',').filter(Boolean);
-    return this.proxyService.sendMicroserviceMessage(
-      { cmd: 'get_movies_by_ids' },
-      { ids: idArray },
-      req.user,
-      'MOVIES_SERVICE',
-    );
-  }
-
 }
