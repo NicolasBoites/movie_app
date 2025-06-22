@@ -8,11 +8,11 @@ import { SQS } from 'aws-sdk';
 
 @ApiTags('Users Gateway')
 @Controller('users')
-@UseGuards(AccessTokenGuard)
 export class UsersGatewayController {
   constructor(private readonly proxyService: ProxyService) {}
 
   @Post()
+  @UseGuards(AccessTokenGuard)
   async createUser(@Body() body: any, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'create_user' },
@@ -23,6 +23,7 @@ export class UsersGatewayController {
   }
 
   @Get()
+  @UseGuards(AccessTokenGuard)
   async findAllUsers(@Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'find_all_users' },
@@ -33,6 +34,7 @@ export class UsersGatewayController {
   }
 
   @Get(':id')
+  @UseGuards(AccessTokenGuard)
   async findUserById(@Param('id', ObjectIdValidationPipe) id: string, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'find_user_by_id' },
@@ -43,6 +45,7 @@ export class UsersGatewayController {
   }
 
   @Patch(':id')
+  @UseGuards(AccessTokenGuard)
   async updateUser(
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: any,
@@ -57,6 +60,7 @@ export class UsersGatewayController {
   }
 
   @Delete(':id')
+  @UseGuards(AccessTokenGuard)
   async deleteUser(@Param('id', ObjectIdValidationPipe) id: string, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
       { cmd: 'remove_user' },
@@ -86,9 +90,9 @@ async addFavoriteMovie(
       data: {
         userId: id,
         movieId,
-        actingUserId: req.user.sub,
+        //actingUserId: req.user.sub,
       },
-      token: req.user, // opcional
+      //token: req.user, // opcional
     }),
   }).promise();
 
@@ -116,9 +120,9 @@ async removeFavoriteMovie(
       data: {
         userId: id,
         movieId,
-        actingUserId: req.user.sub,
+        //actingUserId: req.user.sub,
       },
-      token: req.user, // opcional
+      //token: req.user, // opcional
     }),
   }).promise();
 
