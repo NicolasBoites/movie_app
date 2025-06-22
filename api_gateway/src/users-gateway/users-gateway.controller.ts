@@ -70,6 +70,7 @@ export class UsersGatewayController {
   }
 
   @Patch(':id/favorites/:movieId')
+  @UseGuards(AccessTokenGuard)
 async addFavoriteMovie(
   @Param('id', ObjectIdValidationPipe) id: string,
   @Param('movieId') movieId: string,
@@ -94,11 +95,30 @@ async addFavoriteMovie(
       //token: req.user, // opcional
     }),
   }).promise();
-
-  return { message: 'Movie added to favorites.' };
+  
+      return this.proxyService.sendMicroserviceMessage(
+      { cmd: 'add_favorite_movie' },
+      { userId: id, movieId, actingUserId: req.user.sub },
+      req.user,
+      'AUTH_USER_SERVICE',
+    );
 }
 
+  @Patch(':id/lambda/:movieId')
+  async addFavoriteMovieByLambda(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @Param('movieId') movieId: string
+  ) {
+    return this.proxyService.sendMicroserviceMessage(
+      { cmd: 'add_favorite_movie' },
+      { userId: id, movieId },
+      null,
+      'AUTH_USER_SERVICE',
+    );
+  }
+
   @Delete(':id/favorites/:movieId')
+  @UseGuards(AccessTokenGuard)
 async removeFavoriteMovie(
   @Param('id', ObjectIdValidationPipe) id: string,
   @Param('movieId') movieId: string,
