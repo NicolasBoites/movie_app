@@ -260,10 +260,10 @@ export class UsersGatewayController {
   }
 
   @Patch(':id/lambda/:movieId')
-  @ApiOperation({ summary: 'Add a movie to user favorites (via Lambda - Direct Microservice Call)' })
+  @ApiOperation({ summary: 'Add a movie to user favorites (via Lambda)' })
   @ApiParam({ name: 'id', type: String, description: 'User ID', example: '60c72b2f9b1d8e001c8a1b2d' })
   @ApiParam({ name: 'movieId', type: String, description: 'Movie ID', example: '60c72b2f9b1d8e001c8a1b2e' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Movie added to favorites via direct microservice call.' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Movie added to favorites via lambda.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User or movie not found.' })
   async addFavoriteMovieByLambda(
     @Param('id', ObjectIdValidationPipe) id: string,
@@ -278,10 +278,10 @@ export class UsersGatewayController {
   }
 
   @Delete(':id/lambda/:movieId')
-  @ApiOperation({ summary: 'Remove a movie from user favorites (via Lambda - Direct Microservice Call)' })
+  @ApiOperation({ summary: 'Remove a movie from user favorites (via Lambda)' })
   @ApiParam({ name: 'id', type: String, description: 'User ID', example: '60c72b2f9b1d8e001c8a1b2d' })
   @ApiParam({ name: 'movieId', type: String, description: 'Movie ID', example: '60c72b2f9b1d8e001c8a1b2e' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Movie removed from favorites via direct microservice call.' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Movie removed from favorites via lambda.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User or movie not found.' })
   async removeFavoriteMovieByLambda(
     @Param('id', ObjectIdValidationPipe) id: string,
