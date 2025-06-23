@@ -1,11 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MoviesGatewayController } from './movies-gateway.controller';
-import { AuthGatewayModule } from '../auth-gateway/auth-gateway.module';
-
+import { ClientsConfigModule } from '../common/clients/clients.module';
 @Module({
-  imports: [
-    AuthGatewayModule,
-  ],
+  imports: [ClientsConfigModule],
   controllers: [MoviesGatewayController],
 })
 export class MoviesGatewayModule {}
