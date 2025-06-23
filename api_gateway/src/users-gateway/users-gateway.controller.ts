@@ -117,6 +117,19 @@ async addFavoriteMovie(
     );
   }
 
+    @Delete(':id/lambda/:movieId')
+  async removeFavoriteMovieByLambda(
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @Param('movieId') movieId: string
+  ) {
+    return this.proxyService.sendMicroserviceMessage(
+      { cmd: 'remove_favorite_movie' },
+      { userId: id, movieId },
+      null,
+      'AUTH_USER_SERVICE',
+    );
+  }
+
   @Delete(':id/favorites/:movieId')
   @UseGuards(AccessTokenGuard)
 async removeFavoriteMovie(
