@@ -77,11 +77,7 @@ async addFavoriteMovie(
   @Req() req: any,
 ) {
   const sqs = new SQS({ 
-    region: 'us-east-1',
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    }, });
+    region: 'us-east-1', });
 
   await sqs.sendMessage({
     QueueUrl: process.env.FAVORITES_QUEUE_URL!,
@@ -139,10 +135,6 @@ async removeFavoriteMovie(
 ) {
   const sqs = new SQS({ 
     region: 'us-east-1',
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
    });
 
   await sqs.sendMessage({
