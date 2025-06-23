@@ -1,6 +1,6 @@
 import {
   HeartFilledIcon,
-  MagnifyingGlassIcon,
+  // MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
 import {
   Container,
@@ -8,7 +8,7 @@ import {
   Skeleton,
   Text,
 } from "@radix-ui/themes";
-import { useRef } from "react";
+// import { useRef } from "react";
 import FavoriteList from "../favorites/FavoriteList";
 import { useFavorites } from "./favoritesHooks";
 
