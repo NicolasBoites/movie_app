@@ -49,6 +49,6 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(httpPort);
   console.log(`Auth/User Microservice TCP escuchando en el puerto ${tcpPort}`);
-  console.log(`Auth/User Microservice HTTP (Swagger) escuchando en el puerto ${httpPort}`);
+  // console.log(`Auth/User Microservice HTTP (Swagger) escuchando en el puerto ${httpPort}`);
 }
 bootstrap();
