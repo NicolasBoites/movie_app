@@ -70,4 +70,29 @@ export class MovieService {
     if (!deleted) throw new NotFoundException('Movie not found');
     return { message: 'Movie deleted successfully' };
   }
+
+  async findByIds (moviesIds: string [], page = 1, limit = 10, title?: string): Promise<any> {
+    const filter: any = {};
+    const skip = (page - 1) * limit;
+    filter._id = { $in: moviesIds };
+
+    if (title) {
+      filter.title = { $regex: title, $options: 'i' };
+    }
+    
+    const docs = await this.movieModel
+    .find(filter)
+    .sort({ _id: 1 })
+    .skip(skip)
+    .limit(limit)
+    .lean()
+    .exec();
+    
+    return docs.map(doc => ({
+      id: doc._id.toString(),
+      title: doc.title,
+      rank: doc.rank,
+      genre: doc.genre,
+    }));
+  }
 }
