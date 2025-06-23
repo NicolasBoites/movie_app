@@ -59,9 +59,6 @@ function convertToMovieModel(item: any): Movie {
     return new Movie(item);
 }
 
-function getToken () {
-    return 'Bearer '+JSON.parse(window.localStorage.user).accessToken
-}
 
 function getAuthHeaders(extraHeaders = {}) {
 

@@ -74,12 +74,12 @@ function getAuthHeaders(extraHeaders = {}) {
 const favoriteAPI = {
     // Obtener favoritos de un usuario
     async getFavorites(userId: string): Promise<Favorite[]> {
-         return (await fetch(`${favoritesUrl}/users/${userId}/movies`, {
+         return (await fetch(`${favoritesUrl}/users/${userId}/favorites`, {
                 headers: getAuthHeaders(),
             })
             .then(checkStatus)
             .then(parseJSON)
-            .then((response) => convertToFavoriteModels(response.data))
+            .then((response) => {console.log("response", response); return convertToFavoriteModels(response)})
             .catch(() => {
                 throw new Error(
                     "There was an error retrieving the movies. Please try again."
@@ -89,13 +89,13 @@ const favoriteAPI = {
     },
 
      // Obtener favoritos de un usuario
-     async getFavoritesIds(userId: string): Promise<Favorite[]> {
+     async getFavoritesIds(userId: string): Promise<string[]> {
         return (await fetch(`${favoritesUrl}/users/${userId}`, {
                headers: getAuthHeaders(),
            })
            .then(checkStatus)
            .then(parseJSON)
-           .then((response) => (response.data.favoriteMovieIds))
+           .then((response) => { return (response.favoriteMovieIds)})
            .catch(() => {
                throw new Error(
                    "There was an error retrieving the movies. Please try again."

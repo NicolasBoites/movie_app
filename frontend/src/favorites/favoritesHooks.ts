@@ -30,7 +30,7 @@ export function useFavorites() {
       if (!userId) {
         throw new Error('User not authenticated');
       }
-      return favoriteAPI.getFavoriteMovies(userId, page + 1, 9, title);
+      return favoriteAPI.getFavorites(userId);
     },
     enabled: !!userId, // Solo ejecutar si hay userId
     placeholderData: (previousData) => previousData,
