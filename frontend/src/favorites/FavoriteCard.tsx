@@ -1,11 +1,9 @@
 import {
   DotFilledIcon,
   HeartFilledIcon,
-  Pencil1Icon,
 } from "@radix-ui/react-icons";
 import { Card, Box, Text, Flex } from "@radix-ui/themes";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Favorite } from "./Favorite";
 import { useFavoriteActions } from "./favoritesHooks";
 import authService from "../services/auth.service";
@@ -18,11 +16,6 @@ interface FavoriteProps {
 function FavoriteCard({ favorite, onRemove }: FavoriteProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { removeFromFavorites } = useFavoriteActions();
-  const navigate = useNavigate();
-
-  const handleEditMovie = () => {
-    navigate(`/update-movie/${favorite.id}`);
-  };
 
   const handleRemoveFromFavorites = async () => {
     if (isLoading || !favorite.id) return;

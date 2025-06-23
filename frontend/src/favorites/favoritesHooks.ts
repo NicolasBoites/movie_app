@@ -83,17 +83,37 @@ export function useFavorites() {
 
 // Hook para agregar/remover favoritos
 export function useFavoriteActions() {
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+
   const getCurrentUserId = () => {
     const user = authService.getCurrentUser();
     return user?.id || user?._id || null;
   };
+
+  // Cargar los IDs de favoritos al inicializar el hook
+  useEffect(() => {
+    const loadFavoriteIds = async () => {
+      const userId = getCurrentUserId();
+      if (!userId) return;
+      
+      try {
+        const ids = await favoriteAPI.getFavoritesIds(userId);
+        setFavoriteIds(ids);
+      } catch (error) {
+        console.error("Error loading favorite IDs:", error);
+      }
+    };
+
+    loadFavoriteIds();
+  }, []);
 
   const addToFavorites = async (movieId: string) => {
     const userId = getCurrentUserId();
     if (!userId) {
       throw new Error('User not authenticated');
     }
-    return favoriteAPI.addToFavorites(userId, movieId);
+    await favoriteAPI.addToFavorites(userId, movieId);
+    setFavoriteIds(prev => [...prev, movieId]);
   };
 
   const removeFromFavorites = async (movieId: string) => {
@@ -101,15 +121,12 @@ export function useFavoriteActions() {
     if (!userId) {
       throw new Error('User not authenticated');
     }
-    return favoriteAPI.removeFromFavorites(userId, movieId);
+    await favoriteAPI.removeFromFavorites(userId, movieId);
+    setFavoriteIds(prev => prev.filter(id => id !== movieId));
   };
 
-  const checkIsFavorite = async (movieId: string) => {
-    const userId = getCurrentUserId();
-    if (!userId) {
-      return false;
-    }
-    return favoriteAPI.isFavorite(userId, movieId);
+  const checkIsFavorite = (movieId: string) => {
+    return favoriteIds.includes(movieId);
   };
 
   return {

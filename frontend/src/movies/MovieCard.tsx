@@ -22,18 +22,8 @@ function MovieCard({ movie }: MovieProps) {
 
   // Verificar si la película está en favoritos al cargar el componente
   useEffect(() => {
-    const checkFavoriteStatus = async () => {
-      if (!movie.id) return;
-      
-      try {
-        const favoriteStatus = await checkIsFavorite(movie.id);
-        setIsFavorite(favoriteStatus);
-      } catch (error) {
-        console.error("Error checking favorite status:", error);
-      }
-    };
-
-    checkFavoriteStatus();
+    if (!movie.id) return;
+    setIsFavorite(checkIsFavorite(movie.id));
   }, [movie.id, checkIsFavorite]);
 
   const handleFavoriteClick = async () => {

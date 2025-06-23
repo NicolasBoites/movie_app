@@ -11,7 +11,6 @@ import {
 import { useRef } from "react";
 import FavoriteList from "../favorites/FavoriteList";
 import { useFavorites } from "./favoritesHooks";
-// import { useMovies } from "../movies/moviesHooks";
 
 function FavoritesPage() {
   const {
