@@ -19,24 +19,24 @@ function FavoritesPage() {
     isError,
     isFetching,
     favorites,
-    setTitle,
+    // setTitle,
     hasNextPage,
     page,
     setPage,
     refetchFavorites
   } = useFavorites();
 
-  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const debounce = (query: string) => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current); // limpia el timeout anterior
-    }
+  // const debounce = (query: string) => {
+  //   if (debounceTimeout.current) {
+  //     clearTimeout(debounceTimeout.current); // limpia el timeout anterior
+  //   }
 
-    debounceTimeout.current = setTimeout(() => {
-      setTitle(query.trim());
-    }, 800);
-  };
+  //   debounceTimeout.current = setTimeout(() => {
+  //     setTitle(query.trim());
+  //   }, 800);
+  // };
 
   // Función para cargar más (siguiente página)
   const handleLoadMore = () => {
