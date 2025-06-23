@@ -123,7 +123,7 @@ export class AuthGatewayController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Invalidate user sessions/tokens (logout)' })
   @ApiResponse({ status: HttpStatus.OK, description: 'User successfully logged out.' })
   @ApiResponse({

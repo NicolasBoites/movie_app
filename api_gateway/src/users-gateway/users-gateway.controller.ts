@@ -18,7 +18,6 @@ import { ObjectIdValidationPipe } from '../common/pipes/object-id-validation.pip
 import { SQS } from 'aws-sdk';
 
 @ApiTags('Users Gateway')
-@ApiBearerAuth() // Indicates that all endpoints in this controller require JWT authentication
 @Controller('users')
 export class UsersGatewayController {
   constructor(private readonly proxyService: ProxyService) {}
@@ -40,7 +39,7 @@ export class UsersGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'User created successfully.',
-    schema: { // Simple schema for user response
+    schema: {
       type: 'object',
       properties: {
         id: { type: 'string', example: '60c72b2f9b1d8e001c8a1b2d' },
@@ -67,6 +66,7 @@ export class UsersGatewayController {
     },
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async createUser(@Body() body: any, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
@@ -96,6 +96,7 @@ export class UsersGatewayController {
     },
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async findAllUsers(@Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
@@ -129,6 +130,7 @@ export class UsersGatewayController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async findUserById(@Param('id', ObjectIdValidationPipe) id: string, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
@@ -189,6 +191,7 @@ export class UsersGatewayController {
     },
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async updateUser(
     @Param('id', ObjectIdValidationPipe) id: string,
@@ -214,6 +217,7 @@ export class UsersGatewayController {
   @ApiResponse({ status: HttpStatus.OK, description: 'User deleted successfully.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async deleteUser(@Param('id', ObjectIdValidationPipe) id: string, @Req() req: any) {
     return this.proxyService.sendMicroserviceMessage(
@@ -231,6 +235,7 @@ export class UsersGatewayController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Request to add to favorites sent to SQS. Actual update happens asynchronously.' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User or movie not found.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async addFavoriteMovie(
     @Param('id', ObjectIdValidationPipe) id: string,
@@ -302,6 +307,7 @@ export class UsersGatewayController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Request to remove from favorites sent to SQS. Actual update happens asynchronously.' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User or movie not found.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async removeFavoriteMovie(
     @Param('id', ObjectIdValidationPipe) id: string,
@@ -347,6 +353,7 @@ export class UsersGatewayController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized access.' })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(AccessTokenGuard)
   async getFavoriteMovies(
     @Param('id', ObjectIdValidationPipe) id: string,

@@ -31,7 +31,7 @@ async function bootstrap() {
         scheme: 'bearer',
         bearerFormat: 'JWT',
         name: 'Authorization',
-        description: 'Ingresa tu token JWT (sin el prefijo "Bearer")',
+        description: 'Enter your JWT token (without the "Bearer" prefix)',
         in: 'header',
       },
       'JWT-auth',

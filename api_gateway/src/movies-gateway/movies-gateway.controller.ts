@@ -23,12 +23,9 @@ import {
 } from '@nestjs/swagger';
 import { ProxyService } from '../common/clients/proxy/proxy.service';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
-// No DTO imports here anymore:
-// import { CreateMovieDto } from '../movies/_dtos/create-movie.dto';
-// import { UpdateMovieDto } from '../movies/_dtos/update-movie.dto';
 
 @ApiTags('Movies Gateway')
-@ApiBearerAuth() // Indicates that all endpoints in this controller require JWT authentication
+@ApiBearerAuth('JWT-auth') // Indicates that all endpoints in this controller require JWT authentication
 @Controller('movies')
 @UseGuards(AccessTokenGuard)
 export class MoviesGatewayController {
