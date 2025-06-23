@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "5e98e677-73ec-49e9-8560-51d8fbe23ad3",
-		"name": "Auth-Movies",
+		"name": "Movies App Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "45581042",
-		"_collection_link": "https://aleccoria.postman.co/workspace/87e26af2-93c6-41e5-8a7c-08fe8fc86ceb/collection/45581042-5e98e677-73ec-49e9-8560-51d8fbe23ad3?action=share&source=collection_link&creator=45581042"
+		"_collection_link": "https://aleccoria.postman.co/workspace/Alec-Coria's-Workspace~87e26af2-93c6-41e5-8a7c-08fe8fc86ceb/collection/45581042-5e98e677-73ec-49e9-8560-51d8fbe23ad3?action=share&source=collection_link&creator=45581042"
 	},
 	"item": [
 		{
@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"Alec\",\r\n    \"email\": \"alec45@email.com\",\r\n    \"password\": \"password01_\"\r\n}",
+					"raw": "{\r\n    \"username\": \"Alec Coria\",\r\n    \"email\": \"alec@email.com\",\r\n    \"password\": \"password01_\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -22,9 +22,9 @@
 					}
 				},
 				"url": {
-					"raw": "{{env}}/auth/signup",
+					"raw": "{{ec2env}}/auth/signup",
 					"host": [
-						"{{env}}"
+						"{{ec2env}}"
 					],
 					"path": [
 						"auth",
@@ -78,7 +78,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"alec45@email.com\",\r\n    \"password\": \"password01_\"\r\n}",
+					"raw": "{\r\n    \"email\": \"alec@email.com\",\r\n    \"password\": \"password01_\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -86,101 +86,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{env}}/auth/signin",
+					"raw": "{{ec2env}}/auth/signin",
 					"host": [
-						"{{env}}"
+						"{{ec2env}}"
 					],
 					"path": [
 						"auth",
 						"signin"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete favorite movie",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{accessToken}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{env}}/users/684fb5c19b9c79cad79422b9/favorites/100",
-					"host": [
-						"{{env}}"
-					],
-					"path": [
-						"users",
-						"684fb5c19b9c79cad79422b9",
-						"favorites",
-						"100"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add favorite movie",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{accessToken}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "PATCH",
-				"header": [],
-				"url": {
-					"raw": "{{env}}/users/68519949c521630f12c26c84/favorites/a5555",
-					"host": [
-						"{{env}}"
-					],
-					"path": [
-						"users",
-						"68519949c521630f12c26c84",
-						"favorites",
-						"a5555"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get favorites movies",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{accessToken}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{env}}/users/68519949c521630f12c26c84",
-					"host": [
-						"{{env}}"
-					],
-					"path": [
-						"users",
-						"68519949c521630f12c26c84"
 					]
 				}
 			},
@@ -230,13 +142,205 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{env}}/auth/logout",
+					"raw": "{{ec2env}}/auth/logout",
 					"host": [
-						"{{env}}"
+						"{{ec2env}}"
 					],
 					"path": [
 						"auth",
 						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create movie",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\":\"Pelicula de Alec 1\",\r\n    \"rank\": 1,\r\n    \"genre\":\"genero\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ec2env}}/movies",
+					"host": [
+						"{{ec2env}}"
+					],
+					"path": [
+						"movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add favorite movie",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{ec2env}}/users/68589facebece9a2ecde6fe5/lambda/68589fb88f02f712fa36168a",
+					"host": [
+						"{{ec2env}}"
+					],
+					"path": [
+						"users",
+						"68589facebece9a2ecde6fe5",
+						"lambda",
+						"68589fb88f02f712fa36168a"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get favorites movies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ec2env}}/users/68589facebece9a2ecde6fe5",
+					"host": [
+						"{{ec2env}}"
+					],
+					"path": [
+						"users",
+						"68589facebece9a2ecde6fe5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get movies by user ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ec2env}}/users/68589facebece9a2ecde6fe5/favorites",
+					"host": [
+						"{{ec2env}}"
+					],
+					"path": [
+						"users",
+						"68589facebece9a2ecde6fe5",
+						"favorites"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all movies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ec2env}}/movies",
+					"host": [
+						"{{ec2env}}"
+					],
+					"path": [
+						"movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete favorite movie",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{ec2env}}/users/68589facebece9a2ecde6fe5/favorites/68589fb88f02f712fa36168a",
+					"host": [
+						"{{ec2env}}"
+					],
+					"path": [
+						"users",
+						"68589facebece9a2ecde6fe5",
+						"favorites",
+						"68589fb88f02f712fa36168a"
 					]
 				}
 			},
