@@ -76,7 +76,7 @@ export class AuthGatewayController {
     schema: {
       type: 'object',
       properties: {
-        username: { type: 'string', example: 'existinguser' },
+        email: { type: 'string', example: 'email@example.com' },
         password: { type: 'string', example: 'CorrectPassword123!' },
       },
       required: ['username', 'password'],
