@@ -3,8 +3,8 @@ import { Movie } from '../movies/Movie';
 import * as Utils from './Utils'
 
 import movies from './movies';
-//const baseUrl = 'http://localhost:3000';
-const baseUrl = 'http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com';
+const baseUrl = 'http://localhost:3000';
+//const baseUrl = 'http://movies-app-alb-v2-13741163.us-east-1.elb.amazonaws.com';
 const url = `${baseUrl}/movies`;
 
 function translateStatusToErrorMessage(status: number) {
