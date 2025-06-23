@@ -61,7 +61,8 @@ function FavoritesPage() {
         </div>
       </div>
 
-      {/* Search bar */}
+      {/* Search bar 
+      
       <div className="relative flex items-center h-12 border-0 border-b border-slate-300">
         <input
           onChange={(e: any) => debounce(e.target.value)}
@@ -70,8 +71,7 @@ function FavoritesPage() {
         />
         <MagnifyingGlassIcon height="22" width="22" className="text-slate-500" />
       </div>
-
-
+*/}
       {isFetching && !isPending ? (
         // Loading Message
         <>
